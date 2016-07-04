@@ -24,6 +24,7 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
+    console.log(req.session.user);
 
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
@@ -43,7 +44,10 @@ router.get('/login', function(req, res) {
 router.get('/logout', function(req, res) {
   req.logout();
   req.session.save(function(){
-  res.redirect('/auth/login');
+    req.session.destroy(function(err){
+        res.redirect('/auth/login');
+    });
+
 });
 });
 router.post('/login/done', passport.authenticate(
@@ -98,8 +102,8 @@ router.post('/login/done', passport.authenticate(
                     console.log(hash);
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
-                    // req.session.user_id = uid;
-                    // console.log('제발되라좀'+req.session.user_id);
+                    req.session.user_id = uid;
+                    console.log('제발되라좀'+req.session.user_id);
                     done(null, user);
                   } else {
                     done (null, false);
@@ -158,7 +162,6 @@ router.post('/join/insert', function(req, res, next) {
                   } else {
                     req.login(user, function(error){
                         req.session.user_id = user.user_id;
-
                         console.log('제발되라좀'+req.session.user_id);
 
                       req.session.save(function(){
@@ -181,7 +184,7 @@ router.post('/join/insert', function(req, res, next) {
 
 router.post('/join/update', function(req, res) {//비밀번호 수정
 
-    var user_id = req.body.user_id,
+    var user_id = req.user.user_id,
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
@@ -223,7 +226,7 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
 });
 
 router.post('/join/delete', function(req, res) {//회원 탈퇴
-    var user_id = req.body.user_id,
+    var user_id = req.user.user_id,
         passwd = req.body.passwd,
         repasswd = req.body.repasswd;
 
