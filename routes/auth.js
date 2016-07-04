@@ -11,14 +11,22 @@ var router = express.Router();
 var hasher = bkfd2Password();
 
 var options = {
-
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
 };
 
 var sessionstore = new mysqlstore(options);
 
 
 var connection = mysql.createConnection({
-
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
 });
 
 /* login */
@@ -102,8 +110,6 @@ router.post('/login/done', passport.authenticate(
                     console.log(hash);
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
-                    req.session.user_id = uid;
-                    console.log('제발되라좀'+req.session.user_id);
                     done(null, user);
                   } else {
                     done (null, false);

@@ -18,7 +18,11 @@ var group = require('./routes/group');
 var hasher = bkfd2Password();
 
 var options = {
-
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
 };
 
 var sessionstore = new mysqlstore(options);

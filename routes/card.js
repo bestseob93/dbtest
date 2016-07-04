@@ -6,7 +6,11 @@
   var s3 = require('multer-storage-s3');
 
   var connection = mysql.createConnection({
-
+    'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+    'port' : '3306',
+    'user' : 'ping',
+    'password' : 'd85z85755',
+    'database' : 'pingdb'
   });
 
   /* 랜덤 문자 출력
