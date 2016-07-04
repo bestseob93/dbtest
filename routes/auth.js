@@ -11,22 +11,14 @@ var router = express.Router();
 var hasher = bkfd2Password();
 
 var options = {
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
+
 };
 
 var sessionstore = new mysqlstore(options);
 
 
 var connection = mysql.createConnection({
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
+
 });
 
 /* login */
@@ -42,7 +34,7 @@ router.get('/welcome', function(req, res) {
 });
 
 router.get('/fuck', function(req, res) {
-  res.send('hello fucker');
+  res.send('hello fucker');     // 비번 틀렸을 때
 });
 
 router.get('/login', function(req, res) {
@@ -167,9 +159,6 @@ router.post('/join/insert', function(req, res, next) {
                     res.status(500);
                   } else {
                     req.login(user, function(error){
-                        req.session.user_id = user.user_id;
-                        console.log('제발되라좀'+req.session.user_id);
-
                       req.session.save(function(){
                         res.redirect('/auth/welcome');
                       });

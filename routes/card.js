@@ -51,9 +51,12 @@
   });
 
   router.get('/list', function(req, res, next) {
-      connection.query('select * from card;', function(error, cursor) {
+    var user_id = req.user.user_id;
+      connection.query('select * from user, card where user.user_id = card.user_id and user id = ?;', [user_id], function(error, cursor) {
           if (!error) {
-              res.json(cursor);
+            res.json({
+                result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url
+            });
           } else {
               res.sendStatus(503);
           }
