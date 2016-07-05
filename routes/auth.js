@@ -67,7 +67,7 @@ router.get('/logout', function(req, res) {
 router.post('/login/done', passport.authenticate(
 
   'local', {
-    successRedirect : '/auth/welcome',
+    successRedirect : '/card/list',
     failureRedirect : '/auth/fuck'
   }
   )
