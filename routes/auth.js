@@ -11,28 +11,21 @@ var router = express.Router();
 var hasher = bkfd2Password();
 
 var options = {
-'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-'port' : '3306',
-'user' : 'ping',
-'password' : 'd85z85755',
-'database' : 'pingdb'
+
 };
 
 var sessionstore = new mysqlstore(options);
 
 
 var connection = mysql.createConnection({
-'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-'port' : '3306',
-'user' : 'ping',
-'password' : 'd85z85755',
-'database' : 'pingdb'
+
 });
 
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
     console.log(req.session);
+    console.log(req.user.user_id);
 
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
@@ -50,9 +43,13 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
+    console.log("2111112");
   req.logout();
+  console.log("222222");
   req.session.save(function(){
+      console.log("33331");
     req.session.destroy(function(err){
+        console.log("4444");
         res.redirect('/auth/login');
     });
 
@@ -69,13 +66,14 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
-    done(null, user.user_id);////////////////////////////
+    done(null, user.user_id);
+    connection.query('select session_id from sessions where session_id=?;', [user.user_id])
   });
 
   passport.deserializeUser(function(id, done) {
     console.log('deserializeUser', id);
        connection.query('select * from user where user_id = ?;', [id], function(err, cursor) {
-      if(err) {
+      if(err) {    // 클라에 넘겨줄 부분
         console.log(err);
         done('there is no user');
       } else {
@@ -108,44 +106,9 @@ router.post('/login/done', passport.authenticate(
 
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
                     console.log(hash);
-                  if( hash == user.passwd ) {
-                      console.log('LocalStrategy', user);
-
-
-                      var string_first_session = JSON.stringify(req.session);
-                      var string_second_session = string_first_session.substring(0, string_first_session.length-1)
-                      var string_session = string_second_session +',"passport":{"user":'+ JSON.stringify(uid) +'}}';
-
-                      console.log("------------------------------------------------");
-                      console.log(req.session);
-                      console.log("------------------------------------------------");
-                      console.log(string_session);
+                  if( hash == user.passwd) {
+                    console.log('LocalStrategy', user);
                     done(null, user);
-
-                    connection.query('SELECT * FROM pingdb.sessions where data =?;',[string_session], function(err, cursor){
-                        console.log(cursor[0]);
-                        if(!err){
-                            if(cursor[0]) {
-                                console.log("------------------------------------------------");
-                                console.log(cursor[0].session_id);
-                                res.json({
-                                  result : true, session_id : cursor[0].session_id
-                                });
-
-                                } else {
-                                    console.log("------------------------------------------------");
-                                    console.log("정보없음");
-                                    res.status(503).json({
-                                      result : false, reason : "cannot do"
-                                    });
-                                }
-                        }else{
-                            console.log("------------------------------------------------");
-                            console.log("에러 슈발놈아");
-                            res.status(503).json(error);
-                        }
-                    });
-
                   } else {
                     done (null, false);
                   }
@@ -188,7 +151,12 @@ router.post('/join/insert', function(req, res, next) {
             user_birth: req.body.user_birth,
             salt: salt
           };
-
+            // var user_id = req.body.user_id,
+            //     passwd = hash,
+            //     user_name = req.body.user_name,
+            //     user_sex = req.body.user_sex,
+            //     user_birth = req.body.user_birth,
+            //     salt = salt;
             var sqlm = 'insert into user set ?';
 
             connection.query(sqlm, user, function(error, results) {
@@ -202,7 +170,12 @@ router.post('/join/insert', function(req, res, next) {
                       });
                     });
                   }
-
+                    // if (!error) {
+                    //     res.redirect('/auth/join/welcome');
+                    //     console.log(" 회원등록 완료");
+                    // } else {
+                    //     res.status(503);
+                    // }
                 });
         });
     } else {

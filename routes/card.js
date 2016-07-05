@@ -63,44 +63,27 @@
   });
 
   router.post('/list', function(req, res, next) {
-    var session_uid = req.body.session_id;
-    connection.query('select * from sessions where session_id = ?;', [session_uid], function(err, cursor) {
-      if(!error) {
-        if(cursor[0]) {
-          var sessioncome = cursor[0].data;
-          var parse1 = JSON.parse(sessioncome);
-          var parse2 = parse1.passport;
-          var parse3 = parse2.user;
-          var parse4 = JSON.stringify(parse3);
-
-
-          connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [parse4], function(error, cursor) {
-            console.log("1");
-              if (!error) {
-                if(cursor.length > 0) {
-                console.log(cursor);
-                res.json({
-                    result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url, groupname : cursor[0].groupname
-                });
-              } else {
-                console.log("555");
-                res.sendStatus("506");
-              }
-              } else {
-                  res.sendStatus(503);
-                  console.log("2");
-              }
-          });
-
-        } else {
-          res.status(503).json({
-            result : false, reason : "fuck you"
-          });
-        }
-      }
-    });
-    // var user_id = req.user.user_id;
-
+    console.log(req.user.user_id);
+    console.log("test-----sdfsdf-aaaa");
+    console.log(req.session.user);
+    var user_id = req.user.user_id;
+      connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
+        console.log("1");
+          if (!error) {
+            if(cursor.length > 0) {
+            console.log(cursor);
+            res.json({
+                result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url, groupname : cursor[0].groupname
+            });
+          } else {
+            console.log("555");
+            res.sendStatus("506");
+          }
+          } else {
+              res.sendStatus(503);
+              console.log("2");
+          }
+      });
   });
 
   router.post('/show_group', function(req, res) {
