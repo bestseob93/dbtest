@@ -158,6 +158,13 @@ router.post('/join/insert', function(req, res, next) {
                     console.log(error);
                     res.status(500);
                   } else {
+
+                    var group_def = 'ping_def';
+                    connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
+                      if(err) {
+                        res.sendStatus(503);
+                      }
+                    });
                     req.login(user, function(error){
                       req.session.save(function(){
                         res.redirect('/auth/welcome');

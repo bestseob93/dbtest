@@ -21,9 +21,50 @@ router.get('/',function (req, res) {
     });
 });
 
+router.post('/grouplist', function(req, res) {
+  var groupname = req.body.groupname,
+      user_id = req.user.user_id;
+
+      connection.query('select distinct p.groupname from ping_group p, user u where p.user_id = u.user_id and p.user_id = ?;', [user_id], function (error, cursor) {
+        if(!error) {
+          if(cursor[0]) {
+          res.json({
+            result : true, groupname : cursor[0].groupname
+          });
+        } else {
+          res.json({
+            result : true, groupname : NULL
+          });
+        }
+      } else {
+        res.sendStatus(503);
+      }
+      });
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+router.post('/grouplist/enter', function(req, res) {
+  var user_id = req.user.user_id;
+
+  connection.query('select distinct c.card_id, c.memo, c.photo_url, c.internet_url from card c, ping_group p, user u where u.user_id = p.user_id and c.groupname = p.groupname and p.groupname = ? and p.user_id = ?;', [groupname,user_id], function(err, cursor) {
+    if(!error) {
+      if(cursor[0]) {
+        res.json({
+          result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url : cursor[0].internet_url
+        });
+      } else {
+        res.json({
+          result : false
+        });
+      }
+    } else {
+      res.sendStatus(503);
+    }
+  });
+});
 router.post( '/makegroup', function( req, res ) {
   var groupname = req.body.groupname,
-      user_id = req.body.user_id;
+      user_id = req.user.user_id;
 
     connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [groupname, user_id], function (error) {
         if (!error) {
@@ -38,7 +79,7 @@ router.post( '/makegroup', function( req, res ) {
 router.post( '/update_groupname', function( req, res ) {
   var groupname = req.body.groupname,
       update_groupname =req.body.update_groupname,
-      user_id = req.body.user_id;
+      user_id = req.user.user_id;
 
     connection.query('update ping_group set groupname=? where groupname=? and user_id=?', [update_groupname , groupname, user_id], function (error) {
         if (!error) {
@@ -52,7 +93,7 @@ router.post( '/update_groupname', function( req, res ) {
 
 router.post( '/delete_groupname', function( req, res ) {
   var groupname = req.body.groupname,
-      user_id = req.body.user_id;
+      user_id = req.user.user_id;
 
     connection.query('delete from card where user_id=?;',[user_id],function (error) {
         if (!error) {

@@ -6,11 +6,7 @@
   var s3 = require('multer-storage-s3');
 
   var connection = mysql.createConnection({
-    'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-    'port' : '3306',
-    'user' : 'ping',
-    'password' : 'd85z85755',
-    'database' : 'pingdb'
+
   });
 
   /* 랜덤 문자 출력
@@ -50,9 +46,9 @@
       });
   });
 
-  router.get('/list', function(req, res, next) {
+  router.get('/list/', function(req, res, next) {
     var user_id = req.user.user_id;
-      connection.query('select * from user, card where user.user_id = card.user_id and user id = ?;', [user_id], function(error, cursor) {
+      connection.query('select * from user, card where user.user_id = card.user_id and user_id = ?;', [user_id], function(error, cursor) {
           if (!error) {
             res.json({
                 result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url
@@ -62,7 +58,7 @@
           }
       });
   });
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////
   router.post('/upload',  upload.single('userPhoto'), function(req, res, next) {
       var memo = req.body.memo,
           file_name = req.file.filename,
