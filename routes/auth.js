@@ -159,7 +159,7 @@ router.post('/join/insert', function(req, res, next) {
                     res.status(500);
                   } else {
 
-                    var group_def = 'ping_def';
+                    var group_def = '미분류';
                     connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
                       if(err) {
                         res.sendStatus(503);

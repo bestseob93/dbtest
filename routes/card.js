@@ -58,8 +58,8 @@
           }
       });
   });
-  
-  rotuer.post('/show_group', function(req, res) {
+
+  router.post('/show_group', function(req, res) {
     var user_id = req.user.user_id;
     connection.query('select p.groupname from ping_group p, user u where p.user_id = u.user_id and u.user_id = ?;', [user_id], function(err, cursor) {
       if(!error) {
@@ -79,12 +79,11 @@
 
   });
 
-  router.post('/group_move', function(req, res) {
-    var group_name = req.body.groupname,
-        update_group_name = req.body.updategroupname,
-        user_id = req.user.user_id;
+  router.post('/card_group_move', function(req, res) {
+    var update_group_name = req.body.updategroupname,
+        card_id = req.body.card_id;
 
-    connection.query('update card set groupname = ? where groupname = ? and user_id = ?;', [update_group_name, group_name, user_id], function(err) {
+    connection.query('update card set groupname = ? where card_id = ?;', [update_group_name, card_id], function(err) {
       if(!error) {
         res.writeHead(302, {
           'Location': '/'
@@ -102,7 +101,7 @@
           photo_url = req.file.s3.Location,
           internet_url = req.body.internet_url,
           userid = req.user.user_id,
-          group_def = 'ping_def';
+          group_def = '미분류';
       connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname) VALUES (?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def], function(error, info) {
           if (error != undefined)
               res.sendStatus(503);
