@@ -48,7 +48,7 @@
 
   router.get('/list/', function(req, res, next) {
     var user_id = req.user.user_id;
-      connection.query('select * from user, card where user.user_id = card.user_id and user_id = ?;', [user_id], function(error, cursor) {
+      connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user_id = ?;', [user_id], function(error, cursor) {
           if (!error) {
             res.json({
                 result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url, groupname : cursor[0].groupname

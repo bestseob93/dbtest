@@ -45,13 +45,13 @@ router.post('/grouplist', function(req, res) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post('/grouplist/enter', function(req, res) {
   var groupname = req.body.groupname;
-  var user_id = req.body.user_id;
+  var user_id = req.user.user_id;
 
-  connection.query('select distinct c.card_id, c.memo, c.photo_url, c.internet_url from card c, ping_group p, user u where u.user_id = p.user_id and c.groupname = p.groupname and p.groupname = ? and p.user_id = ?;', [groupname,user_id], function(err, cursor) {
+  connection.query('select distinct c.card_id, c.memo, c.photo_url, c.internet_url from card c, ping_group p, user u where u.user_id = p.user_id and c.user_id = p.user_id and c.groupname = p.groupname and p.groupname = ? and p.user_id = ?;', [groupname,user_id], function(err, cursor) {
     if(!error) {
       if(cursor[0]) {
         res.json({
-          result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url : cursor[0].internet_url
+          result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url : cursor[0].internet_url, groupname : cursor[0].groupname
         });
       } else {
         res.json({
