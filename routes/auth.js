@@ -48,13 +48,18 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
+  console.log("sex");
   req.logout();
+  console.log("sex2");
   req.session.save(function(){
+    console.log("sex3");
     req.session.destroy(function(err){
+      console.log("sex4");
         res.redirect('/auth/login');
     });
 });
 });
+
 router.post('/login/done', passport.authenticate(
 
   'local', {
