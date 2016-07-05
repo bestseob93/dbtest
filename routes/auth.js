@@ -1,6 +1,4 @@
 var express = require('express');
-var session = require('express-session');
-var mysqlstore = require('express-mysql-session')(session);
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy; /**/
 var bkfd2Password = require('pbkdf2-password');
@@ -10,13 +8,6 @@ var router = express.Router();
 
 var hasher = bkfd2Password();
 
-var options = {
-
-};
-
-var sessionstore = new mysqlstore(options);
-
-
 var connection = mysql.createConnection({
 
 });
@@ -24,9 +15,6 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-    console.log(req.session);
-    console.log(req.user.user_id);
-
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
 } else {
@@ -58,7 +46,7 @@ router.get('/logout', function(req, res) {
 router.post('/login/done', passport.authenticate(
 
   'local', {
-    successRedirect : '/auth/welcome',
+    successRedirect : '/card/list',
     failureRedirect : '/auth/fuck'
   }
   )
@@ -67,8 +55,7 @@ router.post('/login/done', passport.authenticate(
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
     done(null, user.user_id);
-    connection.query('select session_id from sessions where session_id=?;', [user.user_id])
-  });
+});
 
   passport.deserializeUser(function(id, done) {
     console.log('deserializeUser', id);
@@ -118,7 +105,6 @@ router.post('/login/done', passport.authenticate(
                     console.log("유저없오");
                     return done('there is no user');//수정
                 }
-
             }
           });
     }
@@ -185,14 +171,14 @@ router.post('/join/insert', function(req, res, next) {
 
 router.post('/join/update', function(req, res) {//비밀번호 수정
 
-    var user_id = req.user.user_id,
+    var user_id = req.body.user_id,
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
 
-    console.log(req.session.user_id);
+    console.log(req.user.user_id);
 
-    if(req.session.user_id == user_id) {
+    if(user_id) {
     connection.query('select * from user where user_id =? and passwd=?;',[user_id,passwd], function(error,cursor){
         if(!error){
             if(cursor[0]){
@@ -227,7 +213,7 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
 });
 
 router.post('/join/delete', function(req, res) {//회원 탈퇴
-    var user_id = req.user.user_id,
+    var user_id = req.body.user_id,
         passwd = req.body.passwd,
         repasswd = req.body.repasswd;
 

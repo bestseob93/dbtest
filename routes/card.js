@@ -1,28 +1,12 @@
   var express = require('express');
-  var session = require('express-session');
-  var mysqlstore = require('express-mysql-session')(session);
   var router = express.Router();
 
   var multer = require('multer');
   var mysql = require('mysql');
   var s3 = require('multer-storage-s3');
 
-  var options = {
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
-  };
-
-  var sessionstore = new mysqlstore(options);
-
   var connection = mysql.createConnection({
-    'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-    'port' : '3306',
-    'user' : 'ping',
-    'password' : 'd85z85755',
-    'database' : 'pingdb'
+
   });
 
   /* 랜덤 문자 출력
@@ -66,7 +50,7 @@
     console.log(req.user.user_id);
     console.log("test-----sdfsdf-aaaa");
     console.log(req.session.user);
-    var user_id = req.user.user_id;
+    var user_id = req.body.user_id;
       connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
         console.log("1");
           if (!error) {
@@ -87,7 +71,7 @@
   });
 
   router.post('/show_group', function(req, res) {
-    var user_id = req.user.user_id;
+    var user_id = req.body.user_id;
     connection.query('select p.groupname from ping_group p, user u where p.user_id = u.user_id and u.user_id = ?;', [user_id], function(err, cursor) {
       if(!error) {
         if(cursor[0]) {
@@ -128,7 +112,7 @@
           file_name = req.file.filename,
           photo_url = req.file.s3.Location,
           internet_url = req.body.internet_url,
-          userid = req.user.user_id,
+          userid = req.body.user_id,
           group_def = '미분류';
       connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname) VALUES (?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def], function(error, info) {
           if (error != undefined)
