@@ -33,7 +33,6 @@ var connection = mysql.createConnection({
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
     console.log(req.session.user);
-
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
 } else {
@@ -110,6 +109,12 @@ router.post('/login/done', passport.authenticate(
                     console.log(hash);
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
+                    req.login(user, function(error){
+                      req.session.user = user;
+                      req.session.save(function(){
+                        res.redirect('/auth/welcome');
+                      });
+                    });
                     done(null, user);
                   } else {
                     done (null, false);
@@ -174,7 +179,7 @@ router.post('/join/insert', function(req, res, next) {
                       }
                     });
                     req.login(user, function(error){
-                      req.session.user_id = user.user_id;
+                      req.session.user = user;
                       req.session.save(function(){
                         res.redirect('/auth/welcome');
                       });
