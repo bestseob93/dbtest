@@ -84,7 +84,7 @@ router.post('/login/done', passport.authenticate(
     usernameField : 'user_id',
     passwordField : 'passwd',
     passReqToCallback : true
-  }, function(req, res, user_id, passwd, done) {
+  }, function(req, user_id, passwd, done) {
       var uid = user_id,
           pwd = passwd;
           connection.query('select * from user where user_id = ?;', [uid], function(error, cursor) {
@@ -102,9 +102,6 @@ router.post('/login/done', passport.authenticate(
                     console.log(hash);
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
-                    connection.query('select session_id from seissions ')
-                    req.session.user_id;
-                    res.session.user_id;
                     done(null, user);
                   } else {
                     done (null, false);

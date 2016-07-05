@@ -47,8 +47,10 @@
   });
 
   router.post('/list', function(req, res, next) {
-    console.log(req.session.user_id);
-    var user_id = req.session.user_id;
+    console.log(req.user.user_id);
+    console.log("test------aaaa");
+    console.log(req.session);
+    var user_id = req.user.user_id;
       connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
         console.log("1");
           if (!error) {
