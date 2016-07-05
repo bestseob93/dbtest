@@ -81,7 +81,7 @@ router.post('/login/done', passport.authenticate(
           if(cursor[0]){
             done(null, cursor[0]);
           }else{
-              res.send("there is no user");
+              done(null, false);
           }
       }
     });
