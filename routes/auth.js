@@ -49,13 +49,18 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
+  if(req.session.authenticated) {
   req.logout();
-  req.session.save(function(){
-    req.session.destroy(function(err){
-        res.redirect('/auth/login');
-    });
-
-});
+  req.session.destroy(function(err){
+    res.redirect('/auth/login');
+  });
+  }
+//   // req.session.save(function(){
+//   //   req.session.destroy(function(err){
+//   //       res.redirect('/auth/login');
+//   //   });
+//
+// });
 });
 router.post('/login/done', passport.authenticate(
 
