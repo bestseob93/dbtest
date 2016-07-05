@@ -11,27 +11,29 @@ var router = express.Router();
 var hasher = bkfd2Password();
 
 var options = {
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
+'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+'port' : '3306',
+'user' : 'ping',
+'password' : 'd85z85755',
+'database' : 'pingdb'
 };
 
 var sessionstore = new mysqlstore(options);
 
 
 var connection = mysql.createConnection({
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
+'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+'port' : '3306',
+'user' : 'ping',
+'password' : 'd85z85755',
+'database' : 'pingdb'
 });
 
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
+    console.log(req.session.user);
+
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
 } else {
@@ -49,7 +51,6 @@ router.get('/login', function(req, res) {
 
 router.get('/logout', function(req, res) {
   req.logout();
-
   req.session.save(function(){
     req.session.destroy(function(err){
         res.redirect('/auth/login');
@@ -68,7 +69,7 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
-    done(null, user);
+    done(null, user.user_id);
   });
 
   passport.deserializeUser(function(id, done) {
@@ -81,13 +82,13 @@ router.post('/login/done', passport.authenticate(
           if(cursor[0]){
             done(null, cursor[0]);
           }else{
-              done(null, false);
+            done(null, false);
           }
       }
     });
   });
 
-  passport.use(new LocalStrategy({
+  passport.use('local', new LocalStrategy({
     usernameField : 'user_id',
     passwordField : 'passwd',
     passReqToCallback : true
@@ -165,13 +166,6 @@ router.post('/join/insert', function(req, res, next) {
                     console.log(error);
                     res.status(500);
                   } else {
-
-                    var group_def = '미분류';
-                    connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
-                      if(err) {
-                        res.sendStatus(503);
-                      }
-                    });
                     req.login(user, function(error){
                       req.session.save(function(){
                         res.redirect('/auth/welcome');
