@@ -109,11 +109,6 @@ router.post('/login/done', passport.authenticate(
                     console.log(hash);
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
-                    req.login(user, function(error){
-                      req.session.save(function(){
-                        res.redirect('/auth/welcome');
-                      });
-                    });
                     done(null, user);
                   } else {
                     done (null, false);
