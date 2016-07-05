@@ -48,18 +48,15 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
-  console.log("sex");
   req.logout();
-  console.log("sex2");
+
   req.session.save(function(){
-    console.log("sex3");
     req.session.destroy(function(err){
-      console.log("sex4");
         res.redirect('/auth/login');
     });
-});
-});
 
+});
+});
 router.post('/login/done', passport.authenticate(
 
   'local', {
@@ -113,7 +110,6 @@ router.post('/login/done', passport.authenticate(
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
                     req.login(user, function(error){
-                      req.session.user = user;
                       req.session.save(function(){
                         res.redirect('/auth/welcome');
                       });
@@ -182,7 +178,6 @@ router.post('/join/insert', function(req, res, next) {
                       }
                     });
                     req.login(user, function(error){
-                      req.session.user = user;
                       req.session.save(function(){
                         res.redirect('/auth/welcome');
                       });
