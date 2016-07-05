@@ -32,7 +32,9 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-    console.log(req.session.user);
+    connection.query('select session_id from sessions', )
+    console.log(req.session);
+    console.log(req.user.user_id);
 
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
@@ -74,7 +76,7 @@ router.post('/login/done', passport.authenticate(
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
     done(null, user.user_id);
-    // 클라에 넘겨줄 분
+    connection.query('select session_id from sessions where session_id=?;', [user.user_id])
   });
 
   passport.deserializeUser(function(id, done) {
@@ -113,7 +115,7 @@ router.post('/login/done', passport.authenticate(
 
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
                     console.log(hash);
-                  if( hash == user.passwd ) {
+                  if( hash == user.passwd) {
                     console.log('LocalStrategy', user);
                     done(null, user);
                   } else {
