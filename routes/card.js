@@ -79,12 +79,13 @@
 
   });
 
-  router.post('/card_group_move', function(req, res) {
-    var update_group_name = req.body.updategroupname,
-        card_id = req.body.card_id;
+  router.post('/show_group/card_group_move', function(req, res) {
+    var card_group_move = req.body.cardgroupmove,
+        card_id = req.body.card_id,
+        user_id = req.user.user_id;
 
-    connection.query('update card set groupname = ? where card_id = ?;', [update_group_name, card_id], function(err) {
-      if(!error) {
+    connection.query('update card set groupname = ? where card_id = ? and user_id = ?;', [card_group_move, card_id, user_id], function(err) {
+      if(!err) {
         res.writeHead(302, {
           'Location': '/'
         });
