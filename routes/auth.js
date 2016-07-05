@@ -32,7 +32,6 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-    console.log(req.session.user);
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
 } else {
@@ -49,18 +48,12 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
-  if(req.session.authenticated) {
   req.logout();
-  req.session.destroy(function(err){
-    res.redirect('/auth/login');
-  });
-  }
-//   // req.session.save(function(){
-//   //   req.session.destroy(function(err){
-//   //       res.redirect('/auth/login');
-//   //   });
-//
-// });
+  req.session.save(function(){
+    req.session.destroy(function(err){
+        res.redirect('/auth/login');
+    });
+});
 });
 router.post('/login/done', passport.authenticate(
 
@@ -92,7 +85,7 @@ router.post('/login/done', passport.authenticate(
     });
   });
 
-  passport.use('local', new LocalStrategy({
+  passport.use(new LocalStrategy({
     usernameField : 'user_id',
     passwordField : 'passwd',
     passReqToCallback : true
