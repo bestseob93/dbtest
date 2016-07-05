@@ -58,14 +58,52 @@
           }
       });
   });
+  
+  rotuer.post('/show_group', function(req, res) {
+    var user_id = req.user.user_id;
+    connection.query('select p.groupname from ping_group p, user u where p.user_id = u.user_id and u.user_id = ?;', [user_id], function(err, cursor) {
+      if(!error) {
+        if(cursor[0]) {
+          res.json({
+            result : true, groupname : cursor[0].groupname
+          });
+        } else {
+          console.log("디폴트 그룹 X");
+          res.sendStatus(502);
+        }
+      } else {
+        console.log("group query error");
+        res.sendStatus(503);
+      }
+    });
+
+  });
+
+  router.post('/group_move', function(req, res) {
+    var group_name = req.body.groupname,
+        update_group_name = req.body.updategroupname,
+        user_id = req.user.user_id;
+
+    connection.query('update card set groupname = ? where groupname = ? and user_id = ?;', [update_group_name, group_name, user_id], function(err) {
+      if(!error) {
+        res.writeHead(302, {
+          'Location': '/'
+        });
+      } else {
+        res.sendStatus(503);
+      }
+    });
+  });
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
   router.post('/upload',  upload.single('userPhoto'), function(req, res, next) {
       var memo = req.body.memo,
           file_name = req.file.filename,
           photo_url = req.file.s3.Location,
           internet_url = req.body.internet_url,
-          userid = req.user.user_id;
-      connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id) VALUES (?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid], function(error, info) {
+          userid = req.user.user_id,
+          group_def = 'ping_def';
+      connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname) VALUES (?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def], function(error, info) {
           if (error != undefined)
               res.sendStatus(503);
           else
