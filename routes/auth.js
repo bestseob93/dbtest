@@ -69,13 +69,11 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
-     console.log('first :' + session);
-    done(null, user.user_id);
+    done(null, user);
   });
 
   passport.deserializeUser(function(id, done) {
     console.log('deserializeUser', id);
-    console.log('second :' + session);
        connection.query('select * from user where user_id = ?;', [id], function(err, cursor) {
       if(err) {
         console.log(err);
@@ -106,14 +104,12 @@ router.post('/login/done', passport.authenticate(
             if(cursor[0]) {
                     console.log(cursor[0]);
                     console.log("동일");
-                    console.log('third :' + session);
                     var user = cursor[0];
 
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
                     console.log(hash);
                   if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
-                    console.log('fourth :' + session);
                     done(null, user);
                   } else {
                     done (null, false);
