@@ -50,9 +50,13 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
+    console.log("2111112");
   req.logout();
+  console.log("222222");
   req.session.save(function(){
+      console.log("33331");
     req.session.destroy(function(err){
+        console.log("4444");
         res.redirect('/auth/login');
     });
 
@@ -70,12 +74,13 @@ router.post('/login/done', passport.authenticate(
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
     done(null, user.user_id);
+    // 클라에 넘겨줄 분
   });
 
   passport.deserializeUser(function(id, done) {
     console.log('deserializeUser', id);
        connection.query('select * from user where user_id = ?;', [id], function(err, cursor) {
-      if(err) {
+      if(err) {    // 클라에 넘겨줄 부분
         console.log(err);
         done('there is no user');
       } else {
