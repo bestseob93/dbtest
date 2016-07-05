@@ -32,7 +32,6 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-    connection.query('select session_id from sessions', )
     console.log(req.session);
     console.log(req.user.user_id);
 

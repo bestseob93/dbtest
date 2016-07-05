@@ -1,9 +1,21 @@
   var express = require('express');
+  var session = require('express-session');
+  var mysqlstore = require('express-mysql-session')(session);
   var router = express.Router();
 
   var multer = require('multer');
   var mysql = require('mysql');
   var s3 = require('multer-storage-s3');
+
+  var options = {
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
+  };
+
+  var sessionstore = new mysqlstore(options);
 
   var connection = mysql.createConnection({
     'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
