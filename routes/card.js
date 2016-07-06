@@ -47,21 +47,25 @@
   });
 
   router.post('/list', function(req, res, next) {
+    console.log("28");
     console.log(req.user.user_id);
     console.log("test-----sdfsdf-aaaa");
     console.log(req.session.user);
     var user_id = req.body.user_id;
-      connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
-        console.log("1");
+      connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [req.body.user_id], function(error, cursor) {
+        console.log("29");
           if (!error) {
+            console.log("30");
             if(cursor.length > 0) {
+              console.log("31");
             console.log(cursor);
             res.json({
                 result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url, groupname : cursor[0].groupname
             });
+            console.log("32");
           } else {
             console.log("555");
-            res.sendStatus("506");
+            res.sendStatus(506);
           }
           } else {
               res.sendStatus(503);
@@ -72,7 +76,7 @@
 
   router.post('/show_group', function(req, res) {
     var user_id = req.body.user_id;
-    connection.query('select p.groupname from ping_group p, user u where p.user_id = u.user_id and u.user_id = ?;', [user_id], function(err, cursor) {
+    connection.query('select p.groupname from ping_group p, user u where p.user_id = u.user_id and u.user_id = ?;', [user_id], function(error, cursor) {
       if(!error) {
         if(cursor[0]) {
           res.json({

@@ -14,9 +14,12 @@ var connection = mysql.createConnection({
 
 /* login */
 router.get('/welcome', function(req, res) {
+  console.log("25");
   if(req.user && req.user.user_name) {
+    console.log("26");
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
+            console.log("27");
 } else {
   res.redirect('/auth/login');
 }
@@ -27,7 +30,9 @@ router.get('/fuck', function(req, res) {
 });
 
 router.get('/login', function(req, res) {
+  console.log("1");
   res.render('login', { title: 'login' });
+  console.log("2");
 });
 
 router.get('/logout', function(req, res) {
@@ -44,9 +49,11 @@ router.get('/logout', function(req, res) {
 });
 });
 router.post('/login/done', passport.authenticate(
-
+  console.log("3");
   'local', {
+    console.log("4");
     successRedirect : '/card/list',
+    console.log("5");
     failureRedirect : '/auth/fuck'
   }
   )
@@ -54,20 +61,31 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
+     console.log("6");
     done(null, user.user_id);
+    console.log("7");
 });
 
   passport.deserializeUser(function(id, done) {
     console.log('deserializeUser', id);
+    console.log("8");
        connection.query('select * from user where user_id = ?;', [id], function(err, cursor) {
+         console.log("9");
       if(err) {    // 클라에 넘겨줄 부분
+        console.log("10");
         console.log(err);
         done('there is no user');
+        console.log("11");
       } else {
+        console.log("12");
           if(cursor[0]){
+            console.log("13");
             done(null, cursor[0]);
+            console.log("14");
           }else{
+            console.log("15");
             done(null, false);
+            console.log("16");
           }
       }
     });
@@ -78,24 +96,31 @@ router.post('/login/done', passport.authenticate(
     passwordField : 'passwd',
     passReqToCallback : true
   }, function(req, user_id, passwd, done) {
+    console.log("17");
       var uid = user_id,
           pwd = passwd;
           connection.query('select * from user where user_id = ?;', [uid], function(error, cursor) {
+            console.log("18");
             if(error) {
               console.log("에러");
               return done('there is no user');
             }
             else {
+              console.log("19");
             if(cursor[0]) {
+              console.log("20");
                     console.log(cursor[0]);
                     console.log("동일");
                     var user = cursor[0];
-
+                    console.log("21");
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
                     console.log(hash);
+                    console.log("22");
                   if( hash == user.passwd) {
                     console.log('LocalStrategy', user);
+                    console.log("23");
                     done(null, user);
+                    console.log("24");
                   } else {
                     done (null, false);
                   }
