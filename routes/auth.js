@@ -51,7 +51,7 @@ router.get('/logout', function(req, res) {
 });
 router.post('/login/done', passport.authenticate(
   'local', {
-    successRedirect : '/card/list/:user_id',
+    successRedirect : '/card/list/',
     failureRedirect : '/auth/fuck'
   }
   )
@@ -60,7 +60,7 @@ router.post('/login/done', passport.authenticate(
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
      var a = user.user_id;
-     console.log(a);
+     console.log('hello' + a);
     done(null, user.user_id);
   });
 
