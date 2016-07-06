@@ -59,6 +59,8 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
+     var a = user.user_id;
+     console.log(a);
     done(null, user.user_id);
   });
 
