@@ -59,7 +59,7 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
-    done(null, user);
+    done(null, user.user_id);
   });
 
   passport.deserializeUser(function(id, done) {
