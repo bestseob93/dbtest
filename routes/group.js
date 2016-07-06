@@ -26,13 +26,12 @@ router.post('/grouplist', function(req, res) {
 
       connection.query('select distinct p.groupname from ping_group p, user u where p.user_id = u.user_id and p.user_id = ?;', [user_id], function (error, cursor) {
         if(!error) {
-          if(cursor[0]) {
-          res.json({
-            result : true, groupname : cursor[0].groupname
-          });
+          if(cursor.length >0) {
+              res.json(cursor);
+
         } else {
           res.json({
-            result : true, groupname : NULL
+            result : true , reason : "그룹리스트보기실패"
           });
         }
       } else {
@@ -41,20 +40,18 @@ router.post('/grouplist', function(req, res) {
       });
 });
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post('/grouplist/enter', function(req, res) {
   var groupname = req.body.groupname;
   var user_id = req.body.user_id;
 
-  connection.query('select distinct c.card_id, c.memo, c.photo_url, c.internet_url from card c, ping_group p, user u where u.user_id = p.user_id and c.user_id = p.user_id and c.groupname = p.groupname and p.groupname = ? and p.user_id = ?;', [groupname,user_id], function(err, cursor) {
+  connection.query('select distinct c.card_id, c.memo, c.photo_url, c.internet_url from card c, ping_group p, user u where u.user_id = p.user_id and c.user_id = p.user_id and c.groupname = p.groupname and p.groupname = ? and p.user_id = ?;', [groupname,user_id], function(error, cursor) {
     if(!error) {
-      if(cursor[0]) {
-        res.json({
-          result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url : cursor[0].internet_url, groupname : cursor[0].groupname
-        });
+      if(cursor.length >0) {
+          res.json(cursor);
+
       } else {
         res.json({
-          result : false
+          result : false , reason: "그룹들어가기실패"
         });
       }
     } else {
@@ -62,16 +59,19 @@ router.post('/grouplist/enter', function(req, res) {
     }
   });
 });
+
 router.post( '/makegroup', function( req, res ) {
-  var groupname = req.body.groupname,
-      user_id = req.body.user_id;
+    var groupname = req.body.groupname,
+        user_id = req.body.user_id;
 
     connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [groupname, user_id], function (error) {
         if (!error) {
-            res.end("그룹생성");
+            res.json({result : true , reason: "그룹생성완료"
+            });
 
         } else {
-            res.end("에러");
+            res.json({result : false , reason: "그룹생성실패"
+            });
         }
     });
 });
@@ -83,10 +83,12 @@ router.post( '/update_groupname', function( req, res ) {
 
     connection.query('update ping_group set groupname=? where groupname=? and user_id=?', [update_groupname , groupname, user_id], function (error) {
         if (!error) {
-            res.end("그룹이름변경");
+            res.json({result : true , reason: "그룹이름변경"
+            });
 
         } else {
-            res.end("에러");
+            res.json({result : false , reason: "그룹이름변경실패"
+            });
         }
     });
 });
@@ -99,15 +101,18 @@ router.post( '/delete_groupname', function( req, res ) {
         if (!error) {
             connection.query('delete from ping_group where groupname=? and user_id=?;', [groupname, user_id], function (error) {
                 if (!error) {
-                    res.end("그룹삭제");
+                    res.json({result : true , reason: "그룹삭제 및 그룹 내 카드 삭제 성공"
+                    });
 
                 } else {
-                    res.end("에러");
+                    res.json({result : false , reason: "카드는 삭제했으나 그룹삭제실패"
+                    });
                 }
             });
 
         } else {
-            res.end("에러~");
+            res.json({result : false , reason: "그룹삭제시 카드먼저 삭제 실패"
+            });
         }
     });
 
