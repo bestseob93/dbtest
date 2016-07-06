@@ -102,7 +102,7 @@ router.post( '/delete_groupname', function( req, res ) {
   var groupname = req.body.groupname,
       user_id = req.body.user_id;
 
-    connection.query('delete from card where user_id=?;',[user_id],function (error) {
+    connection.query('delete from card where groupname=? and user_id=?;',[groupname , user_id],function (error) {
         if (!error) {
             connection.query('delete from ping_group where groupname=? and user_id=?;', [groupname, user_id], function (error) {
                 if (!error) {
