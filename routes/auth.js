@@ -1,4 +1,6 @@
 var express = require('express');
+var session = require('express-session');
+var mysqlstore = require('express-mysql-session')(session);
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy; /**/
 var bkfd2Password = require('pbkdf2-password');
@@ -8,18 +10,22 @@ var router = express.Router();
 
 var hasher = bkfd2Password();
 
+var options = {
+
+};
+
+var sessionstore = new mysqlstore(options);
+
+
 var connection = mysql.createConnection({
 
 });
 
 /* login */
 router.get('/welcome', function(req, res) {
-  console.log("25");
   if(req.user && req.user.user_name) {
-    console.log("26");
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
-            console.log("27");
 } else {
   res.redirect('/auth/login');
 }
@@ -30,30 +36,22 @@ router.get('/fuck', function(req, res) {
 });
 
 router.get('/login', function(req, res) {
-  console.log("1");
   res.render('login', { title: 'login' });
-  console.log("2");
 });
 
 router.get('/logout', function(req, res) {
-    console.log("2111112");
   req.logout();
-  console.log("222222");
+
   req.session.save(function(){
-      console.log("33331");
     req.session.destroy(function(err){
-        console.log("4444");
         res.redirect('/auth/login');
     });
 
 });
 });
 router.post('/login/done', passport.authenticate(
-  console.log("3");
   'local', {
-    console.log("4");
     successRedirect : '/card/list',
-    console.log("5");
     failureRedirect : '/auth/fuck'
   }
   )
@@ -61,66 +59,48 @@ router.post('/login/done', passport.authenticate(
 
   passport.serializeUser(function(user, done) {
      console.log('serializeUser', user);
-     console.log("6");
-    done(null, user.user_id);
-    console.log("7");
-});
+    done(null, user);
+  });
 
   passport.deserializeUser(function(id, done) {
     console.log('deserializeUser', id);
-    console.log("8");
        connection.query('select * from user where user_id = ?;', [id], function(err, cursor) {
-         console.log("9");
-      if(err) {    // 클라에 넘겨줄 부분
-        console.log("10");
+      if(err) {
         console.log(err);
         done('there is no user');
-        console.log("11");
       } else {
-        console.log("12");
           if(cursor[0]){
-            console.log("13");
             done(null, cursor[0]);
-            console.log("14");
           }else{
-            console.log("15");
-            done(null, false);
-            console.log("16");
+              done(null, false);
           }
       }
     });
   });
 
-  passport.use('local', new LocalStrategy({
+  passport.use(new LocalStrategy({
     usernameField : 'user_id',
     passwordField : 'passwd',
     passReqToCallback : true
   }, function(req, user_id, passwd, done) {
-    console.log("17");
       var uid = user_id,
           pwd = passwd;
           connection.query('select * from user where user_id = ?;', [uid], function(error, cursor) {
-            console.log("18");
             if(error) {
               console.log("에러");
               return done('there is no user');
             }
             else {
-              console.log("19");
             if(cursor[0]) {
-              console.log("20");
                     console.log(cursor[0]);
                     console.log("동일");
                     var user = cursor[0];
-                    console.log("21");
+
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
                     console.log(hash);
-                    console.log("22");
-                  if( hash == user.passwd) {
+                  if( hash == user.passwd ) {
                     console.log('LocalStrategy', user);
-                    console.log("23");
                     done(null, user);
-                    console.log("24");
                   } else {
                     done (null, false);
                   }
@@ -130,6 +110,7 @@ router.post('/login/done', passport.authenticate(
                     console.log("유저없오");
                     return done('there is no user');//수정
                 }
+
             }
           });
     }
@@ -175,6 +156,13 @@ router.post('/join/insert', function(req, res, next) {
                     console.log(error);
                     res.status(500);
                   } else {
+
+                    var group_def = '미분류';
+                    connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
+                      if(err) {
+                        res.sendStatus(503);
+                      }
+                    });
                     req.login(user, function(error){
                       req.session.save(function(){
                         res.redirect('/auth/welcome');
@@ -196,14 +184,14 @@ router.post('/join/insert', function(req, res, next) {
 
 router.post('/join/update', function(req, res) {//비밀번호 수정
 
-    var user_id = req.body.user_id,
+    var user_id = req.user.user_id,
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
 
-    console.log(req.user.user_id);
+    console.log(req.session.user_id);
 
-    if(user_id) {
+    if(req.session.user_id == user_id) {
     connection.query('select * from user where user_id =? and passwd=?;',[user_id,passwd], function(error,cursor){
         if(!error){
             if(cursor[0]){
@@ -238,7 +226,7 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
 });
 
 router.post('/join/delete', function(req, res) {//회원 탈퇴
-    var user_id = req.body.user_id,
+    var user_id = req.user.user_id,
         passwd = req.body.passwd,
         repasswd = req.body.repasswd;
 

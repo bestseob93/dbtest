@@ -1,9 +1,18 @@
   var express = require('express');
+  var session = require('express-session');
+  var mysqlstore = require('express-mysql-session')(session);
   var router = express.Router();
 
   var multer = require('multer');
   var mysql = require('mysql');
   var s3 = require('multer-storage-s3');
+
+  var options = {
+
+  };
+
+  var sessionstore = new mysqlstore(options);
+
 
   var connection = mysql.createConnection({
 
@@ -45,8 +54,30 @@
           }
       });
   });
-
+  router.get('/list', function(Req, res, next) {
+    connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [req.params.user_id], function(error, cursor) {
+      console.log("39");
+        if (!error) {
+          console.log("40");
+          if(cursor.length > 0) {
+            console.log("41");
+          console.log(cursor);
+          res.json({
+              result : true, card_id : cursor[0].card_id, memo : cursor[0].memo, photo_url : cursor[0].photo_url, internet_url :cursor[0].internet_url, groupname : cursor[0].groupname
+          });
+          console.log("42");
+        } else {
+          console.log("666");
+          res.sendStatus(506);
+        }
+        } else {
+            res.sendStatus(503);
+            console.log("55445");
+        }
+    });
+  })
   router.post('/list', function(req, res, next) {
+    console.log(req.session);
     console.log("28");
     console.log(req.user.user_id);
     console.log("test-----sdfsdf-aaaa");
@@ -117,8 +148,10 @@
           photo_url = req.file.s3.Location,
           internet_url = req.body.internet_url,
           userid = req.body.user_id,
-          group_def = '미분류';
-      connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname) VALUES (?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def], function(error, info) {
+          group_def = '미분류'.
+          bookmark = req.body.bookmark;
+
+      connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname, bookmark) VALUES (?, ?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def, bookmark], function(error, info) {
           if (error != undefined)
               res.sendStatus(503);
           else
