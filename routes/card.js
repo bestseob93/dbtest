@@ -87,27 +87,7 @@
       });
   });
 
-  router.post('/show_group', function(req, res) {
-    var user_id = req.body.user_id;
-    connection.query('select p.groupname from ping_group p, user u where p.user_id = u.user_id and u.user_id = ?;', [user_id], function(error, cursor) {
-      if(!error) {
-        if(cursor[0]) {
-          res.json({
-            result : true, groupname : cursor[0].groupname
-          });
-        } else {
-          console.log("디폴트 그룹 X");
-          res.sendStatus(502);
-        }
-      } else {
-        console.log("group query error");
-        res.sendStatus(503);
-      }
-    });
-
-  });
-
-  router.post('/show_group/card_group_move', function(req, res) {
+  router.post('/card_group_move', function(req, res) {
     var card_group_move = req.body.cardgroupmove,
         card_id = req.body.card_id,
         user_id = req.user.user_id;
