@@ -3,6 +3,7 @@
   var mysqlstore = require('express-mysql-session')(session);
   var passport = require('passport');
   var LocalStrategy = require('passport-local').Strategy; /**/
+  var authhes = require('./auth');
   var router = express.Router();
 
   var multer = require('multer');
