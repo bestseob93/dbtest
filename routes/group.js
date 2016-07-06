@@ -48,7 +48,6 @@ router.post('/grouplist/enter', function(req, res) {
     if(!error) {
       if(cursor.length >0) {
           res.json(cursor);
-
       } else {
         res.json({
           result : false , reason: "그룹들어가기실패"

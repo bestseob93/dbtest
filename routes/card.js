@@ -38,6 +38,7 @@
           cb(null, Date.now() + ran_result + "." + file.originalname.split('.').pop());
       },
       bucket: 'appjamping',
+      acl : 'public-read',
       region: 'ap-northeast-2'
   });
 
