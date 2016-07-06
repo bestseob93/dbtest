@@ -62,6 +62,7 @@ router.post('/login/done', passport.authenticate(
      var a = user.user_id;
      console.log('hello' + a);
     done(null, user.user_id);
+    console.log('hi man : ' + a);
   });
 
   passport.deserializeUser(function(id, done) {
@@ -131,57 +132,72 @@ router.get('/join/welcome', function(req, res, next) {
 
 router.post('/join/insert', function(req, res, next) {
     var before_passwd = req.body.passwd,
-        before_repasswd = req.body.repasswd;
+        before_repasswd = req.body.repasswd,
+        user_id = req.body.user_id;
 
-    if (before_passwd === before_repasswd) {
-        hasher({
-            password: req.body.passwd
-        }, function(err, pass, salt, hash) {
-          var user = {
-            user_id: req.body.user_id,
-            passwd: hash,
-            user_name: req.body.user_name,
-            user_sex: req.body.user_sex,
-            user_birth: req.body.user_birth,
-            salt: salt
-          };
-            // var user_id = req.body.user_id,
-            //     passwd = hash,
-            //     user_name = req.body.user_name,
-            //     user_sex = req.body.user_sex,
-            //     user_birth = req.body.user_birth,
-            //     salt = salt;
-            var sqlm = 'insert into user set ?';
+        connection.query('select * from user where user_id=?;', [user_id],
+            function(error, cursor) {
+                if (!error) {
+                    if (cursor[0]) {
+                        // var string_cursor = JSON.stringify(cursor[0].user_id);
+                        // if (string_cursor == user_id) {
+                            res.json({
+                              result : false, reason : "이미 있는 아이디 입니다."
+                          });
+                        // } else {
+                        //     res.end("사용 가능한 아이디 입니다.1");
+                        // }
+                    } else {
+                      if (before_passwd === before_repasswd) {
+                          hasher({
+                              password: req.body.passwd
+                          }, function(err, pass, salt, hash) {
+                            var user = {
+                              user_id: req.body.user_id,
+                              passwd: hash,
+                              user_name: req.body.user_name,
+                              user_sex: req.body.user_sex,
+                              user_birth: req.body.user_birth,
+                              salt: salt
+                            };
+                              var sqlm = 'insert into user set ?';
 
-            connection.query(sqlm, user, function(error, results) {
-                  if(error) {
-                    console.log(error);
-                    res.status(500);
-                  } else {
+                              connection.query(sqlm, user, function(error, results) {
+                                    if(error) {
+                                      console.log(error);
+                                      res.status(500);
+                                    } else {
 
-                    var group_def = '미분류';
-                    connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
-                      if(err) {
-                        res.sendStatus(503);
+                                      var group_def = '미분류';
+
+                                      connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
+                                        if(err) {
+                                          res.sendStatus(503);
+                                          console.log("회원 가입 시 그룹생성 에러");
+                                        }
+                                      });
+                                      req.login(user, function(error){
+                                        req.session.save(function(){
+                                          res.redirect('/auth/welcome');
+                                        });
+                                      });
+                                    }
+                                      // if (!error) {
+                                      //     res.redirect('/auth/join/welcome');
+                                      //     console.log(" 회원등록 완료");
+                                      // } else {
+                                      //     res.status(503);
+                                      // }
+                                  });
+                          });
+                      } else {
+                          res.send("비밀번호가 일치하지 않습니다.");
                       }
-                    });
-                    req.login(user, function(error){
-                      req.session.save(function(){
-                        res.redirect('/auth/welcome');
-                      });
-                    });
-                  }
-                    // if (!error) {
-                    //     res.redirect('/auth/join/welcome');
-                    //     console.log(" 회원등록 완료");
-                    // } else {
-                    //     res.status(503);
-                    // }
-                });
-        });
-    } else {
-        res.send("비밀번호가 일치하지 않습니다.");
-    }
+                    }
+                } else {
+                    res.sendStatus(503);
+                }
+            });
 });
 
 router.post('/join/update', function(req, res) {//비밀번호 수정
@@ -275,31 +291,5 @@ router.post('/join/delete', function(req, res) {//회원 탈퇴
     }
 });
 
-
-router.post('/join/idcheck', function(req, res, next) { //아이디 중복체크
-
-    var user_id = req.body.user_id;
-
-    connection.query('select * from user where user_id=?;', [user_id],
-        function(error, cursor) {
-            if (!error) {
-                if (cursor[0]) {
-                    var string_cursor = JSON.stringify(cursor[0].user_id);
-                    var string_user_id = JSON.stringify(user_id);
-
-                    if (string_cursor == string_user_id) {
-                        res.end("이미 있는 아이디 입니다.");
-                    } else {
-                        res.end("사용 가능한 아이디 입니다.1");
-                    }
-                } else {
-                    res.end("사용 가능한 아이디 입니다.2");
-                }
-            } else {
-                res.sendStatus(503);
-            }
-        });
-
-});
 
 module.exports = router;

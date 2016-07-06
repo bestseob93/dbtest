@@ -29,13 +29,17 @@
       ran_result += ran_string.charAt(Math.random() * ran_string.length);
   };
 
+  var check_time;
+  check_time = new Date();
+  check_time = check_time.getFullYear() + '' + (check_time.getMonth() + 1) + '' + check_time.getDate() + '' + check_time.getHours() + '' + check_time.getMinutes() + '' + check_time.getSeconds();
+
 
   var storage = s3({
       destination: function(req, file, cb) {
           cb(null, 'file/');
       },
       filename: function(req, file, cb) {
-          cb(null, Date.now() + ran_result + "." + file.originalname.split('.').pop());
+          cb(null, check_time + ran_result + "." + file.originalname.split('.').pop());
       },
       bucket: 'appjamping',
       acl : 'public-read',
