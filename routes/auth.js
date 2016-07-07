@@ -333,7 +333,8 @@ router.post('/join/delete', function(req, res) {//회원 탈퇴
     } else {
       console.log("재확인 비밀번호 일치하지 않음");
         res.status(506).json({
-          result : false, reason "재확인 비밀번호 일치하지 않음"
+          result : false,
+          reason : "재확인 비밀번호 일치하지 않음"
         });
     }
 });
