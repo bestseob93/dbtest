@@ -21,10 +21,12 @@ var connection = mysql.createConnection({
 });
 
 /* login */
-router.get('/welcome', function(req, res) {
+router.get('/welcome/:user_id', function(req, res) {
   if(req.user && req.user.user_name) {
-  res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
-            '<a href="/card/">카드 보내기 </a>');
+    var user_id = req.params.user_id;
+    res.redirect('/card/list/:user_id');
+  // res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
+  //           '<a href="/card/">카드 보내기 </a>');
 } else {
   res.redirect('/auth/login');
 }
@@ -50,7 +52,7 @@ router.get('/logout', function(req, res) {
 
 router.post('/login/done', passport.authenticate(
   'local', {
-    successRedirect : '/card/list',
+    successRedirect : '/auth/welcome',
     failureRedirect : '/auth/fuck'
   }
   )
