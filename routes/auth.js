@@ -16,7 +16,6 @@ var options = {
 
 var sessionstore = new mysqlstore(options);
 
-
 var connection = mysql.createConnection({
 
 });
