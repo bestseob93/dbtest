@@ -207,15 +207,15 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
-        hasher({
-            password: passwd
-        }, function(err, pass, salt, hash) {
-          var hapasswd = hash,
-              salt = salt;
 
-    connection.query('select * from user where user_id =? and passwd=?;',[user_id,hapasswd], function(error,cursor){
+    connection.query('select * from user where user_id =? and passwd=?;',[user_id], function(error,cursor){
+      console.log(cursor);
         if(!error) {
             if(cursor[0]) {
+              hasher({
+                  password: passwd, salt: cursor[0].salt
+              }, function(err, pass, salt, hash) {
+                if(hash == cursor[0].passwd) {
                   if(update_passwd == update_repasswd){
                     connection.query('update user set passwd=? where user_id=?', [update_passwd,user_id], function(error) {
                         if (!error) {
@@ -228,10 +228,11 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                       res.end("수정될 비밀번호가 일치하지 않습니다.");
                   }
             } else {
-                res.end("비밀번호가 일치하지 않습니다.");
+                res.end("기존 비밀번호가 일치하지 않습니다.");
             }
-        } else {
-                 res.end("왜에러냐");
+        });
+      } else {
+                 res.end("유저 없음.");
         }
     });
     });
