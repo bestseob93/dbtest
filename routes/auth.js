@@ -141,7 +141,7 @@ router.post('/join/insert', function(req, res, next) {
                     if (cursor[0]) {
                         // var string_cursor = JSON.stringify(cursor[0].user_id);
                         // if (string_cursor == user_id) {
-                            res.Staus(503).json({
+                            res.status(503).json({
                               result : false, reason : "이미 있는 아이디 입니다."
                           });
                         // } else {
@@ -178,7 +178,9 @@ router.post('/join/insert', function(req, res, next) {
                                       });
                                       req.login(user, function(error){
                                         req.session.save(function(){
-                                          res.redirect('/card/list');
+                                          res.redirect('/card/list').json({
+                                            result : true
+                                          });
                                         });
                                       });
                                     }
