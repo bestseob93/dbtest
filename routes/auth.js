@@ -21,9 +21,9 @@ var connection = mysql.createConnection({
 });
 
 /* login */
-router.get('/welcome', function(req, res) {
+router.post('/welcome', function(req, res) {
   console.log("웰컴 : " + user);
-  var auss = req.params.user_id;
+  var auss = req.body.user_id;
   console.log(auss);
   res.redirect('/card/list/' + auss + '');
 
