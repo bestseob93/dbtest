@@ -141,7 +141,8 @@ router.post('/join/insert', function(req, res, next) {
                         // var string_cursor = JSON.stringify(cursor[0].user_id);
                         // if (string_cursor == user_id) {
                             res.status(503).json({
-                              result : false, reason : "이미 있는 아이디 입니다."
+                              result : false,
+                              reason : "이미 있는 아이디 입니다."
                           });
                         // } else {
                         //     res.end("사용 가능한 아이디 입니다.1");
@@ -202,13 +203,12 @@ router.post('/join/insert', function(req, res, next) {
 });
 
 router.post('/join/update', function(req, res) {//비밀번호 수정
-
     var user_id = req.body.user_id,
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
 
-    connection.query('select * from user where user_id =?',[user_id], function(error,cursor){
+    connection.query('select * from user where user_id =?',[user_id], function(error, cursor){
       console.log(cursor);
         if(!error) {
             if(cursor[0]) {
@@ -220,32 +220,49 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                     hasher({
                         password: req.body.update_passwd
                     }, function (err, pass,salt, hash) {
-                      var upuser = {passwd : hash,
+                      var upuser = {
+                          passwd : hash,
                           salt : salt
                         };
-                    connection.query('update user set ? where user_id=?', [upuser, user_id], function(error) {
 
+                    connection.query('update user set ? where user_id = ?', [upuser, user_id], function(error) {
                         if (!error) {
-                            res.end("수정하였습니다.");
+                            res.json({
+                              result: true,
+                              reason: "회원 정보 수정 완료"
+                            });
                         } else {
-                            res.status(503);
+                            res.status(503).json({
+                              result: false,
+                              reason: "DB 에러"
+                            });
                         }
                     });
                   });
                   } else {
-                      res.end("수정될 비밀번호가 일치하지 않습니다.");
+                    res.status(503).json({
+                      result: false,
+                      reason: "수정될 비밀번호가 일치하지 않습니다"
+                    });
                   }
             } else {
-                res.end("기존 비밀번호가 일치하지 않습니다.");
+              res.status(503).json({
+                result: false,
+                reason: "기존 비밀번호가 일치하지 않습니다"
+              });
             }
-
         });
       } else {
-                 res.end("유저 없음.");
+        res.status(503).json({
+          result: false,
+          reason: "유저 없음"
+        });
         }
-
       } else {
-        res.status(506);
+        res.status(506).json({
+          result: false,
+          reason: "걍 에러"
+        });
       }
     });
 });
@@ -255,48 +272,71 @@ router.post('/join/delete', function(req, res) {//회원 탈퇴
         passwd = req.body.passwd,
         repasswd = req.body.repasswd;
 
-    var string_passwd = JSON.stringify(passwd);
-    var string_repasswd = JSON.stringify(repasswd);
-
-    if(string_passwd == string_repasswd){
-        connection.query('select * from user where user_id =? and passwd=?;',[user_id,passwd], function(error,cursor){
+    if(passwd == repasswd) {
+        connection.query('select * from user where user_id =?;',[user_id], function(error,cursor){
             if(!error){
-                if(cursor[0]){
-                      connection.query('delete from card where user_id=?;',[user_id],function(error,cursor){
-                        if(!error){
-                            connection.query('delete from ping_group where user_id=?;',[user_id],function(error,cursor){
-                            if(!error){
-                                connection.query('delete from user where user_id=?;',[user_id],function(error,cursor){
-                                if(!error){
-                                    res.end("탈퇴하셨습니다.");
-                                }else{
-                                    res.end("왜에러냐3");
-                                }
-                                });
-                            }else{
-                                res.end("왜에러냐2");
-                            }
-                            });
-
-                        }else{
-                            res.end("왜에러냐1");
-                        }
+                if(cursor[0]) {
+                  hasher({
+                    password : passwd, salt : cursor[0].salt, function(err, pass, salt, hash) {
+                      if(hash == cursor[0].passwd) {
+                        connection.query('delete from card where user_id=?;',[user_id],function(error,cursor){
+                          if(!error) {
+                              connection.query('delete from ping_group where user_id=?;',[user_id],function(error,cursor){
+                              if(!error) {
+                                  connection.query('delete from user where user_id=?;',[user_id],function(error,cursor){
+                                  if(!error) {
+                                      res.json({
+                                        result : true, reason : "삭제 성공"
+                                      });
+                                  }e lse {
+                                      console.log("유저 삭제 실패");
+                                      res.status(503).json({
+                                        result : false, reason : "유저 삭제 실패"
+                                      });
+                                  }
+                                  });
+                              } else {
+                                  console.log("그룹 삭제 실패");
+                                  res.status(503).json({
+                                    result : false, reason : "그룹 삭제 실패"
+                                  });
+                              }
+                              });
+                          } else {
+                            console.log("카드 삭제 실퍠");
+                              res.status(503).json({
+                                result : false, reason : "카드 삭제 실패"
+                              });
+                          }
+                      });
+                    } else {
+                      console.log("비밀번호 일치하지 않음");
+                      res.status(503).json({
+                        result : false, reason : "비밀번호 일치하지 않음"
+                      });
+                    }
+                    }
+                  });
+                } else {
+                  console.log("cursor[0] 존재하지 않음");
+                    res.status(503).json({
+                      result : false, reason : "cursor[0] 존재하지 않음"
                     });
-
                 }
-                else{
-                    res.end("비밀번호가 일치하지 않습니다.");
-                }
-            }
-            else{
-                res.end("왜에러냐2");
+            } else {
+              console.log("유저 아이디 없음");
+                res.status(506).json({
+                  result : false, reason : "유저 아이디 없음"
+                });
             }
         });
 
     } else {
-        res.end("재확인 비밀번호가 일치하지 않습니다.");//두 비밀번호가 다를 때
+      console.log("재확인 비밀번호 일치하지 않음");
+        res.status(506).json({
+          result : false, reason "재확인 비밀번호 일치하지 않음"
+        });
     }
 });
-
 
 module.exports = router;

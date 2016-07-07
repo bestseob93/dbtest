@@ -42,7 +42,7 @@
           cb(null, check_time + ran_result + "." + file.originalname.split('.').pop());
       },
       bucket: 'appjamping',
-      acl : 'public-read',
+      acl: 'public-read',
       region: 'ap-northeast-2'
   });
 
@@ -64,47 +64,68 @@
   });
 
   router.get('/list/:user_id', function(req, res, next) {
-    console.log(req.session);
-    console.log("28");
-    var user_id = req.params.user_id;
+      console.log(req.session);
+      var user_id = req.params.user_id;
       connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
-        console.log("29");
           if (!error) {
-            console.log("30");
-            if(cursor.length > 0) {
-              console.log("31");
-            console.log(cursor);
-            res.json(cursor);
-            console.log("32");
+              if (cursor.length > 0) {
+                  console.log(cursor);
+                  res.json(cursor);
+              } else {
+                  res.status(506).json({
+                    result: false,
+                    reason: "DB 에러"
+                  })
+              }
           } else {
-            console.log("555");
-            res.sendStatus(506);
-          }
-          } else {
-              res.sendStatus(503);
-              console.log("2");
+              res.status(503).json({
+                result: false,
+                reason: "리스트 출력 실패"
+              });
           }
       });
   });
 
   router.post('/card_group_move', function(req, res) {
-    var card_group_move = req.body.cardgroupmove,
-        card_id = req.body.card_id,
-        user_id = req.user.user_id;
+      var card_group_move = req.body.cardgroupmove,
+          card_id = req.body.card_id,
+          user_id = req.body.user_id;
 
-    connection.query('update card set groupname = ? where card_id = ? and user_id = ?;', [card_group_move, card_id, user_id], function(err) {
-      if(!err) {
-        res.writeHead(302, {
-          'Location': '/'
-        });
-      } else {
-        res.sendStatus(503);
-      }
-    });
+      connection.query('update card set groupname = ? where card_id = ? and user_id = ?;', [card_group_move, card_id, user_id], function(error) {
+          if (!error) {
+              res.json({
+                reuslt: true,
+                reason: "카드 그룹 변경 성공"
+              })
+          } else {
+              res.status(503).json({
+                result: false,
+                reason: "카드 그룹 변경 실패"
+              });
+          }
+      });
   });
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-  router.post('/upload',  upload.single('userPhoto'), function(req, res, next) {
+router.post('/bookmarking', function(req, res) {
+  var bookmark = req.body.bookmark,
+      card_id = req.body.card_id;
+
+  connection.query('UPDATE card set bookmark = ? where card_id = ?;', [bookmark, card_id], function(error) {
+    if(!error) {
+      res.json({
+        result: true,
+        reason: "북마크 추가 성공"
+      });
+    } else {
+      res.status(503).json({
+        result: false,
+        reason: "북마크 추가 실패"
+      });
+    }
+  });
+});
+
+  router.post('/upload', upload.single('userPhoto'), function(req, res, next) {
       var memo = req.body.memo,
           file_name = req.file.filename,
           photo_url = req.file.s3.Location,
@@ -114,48 +135,60 @@
           bookmark = req.body.bookmark;
 
       connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname, bookmark) VALUES (?, ?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def, bookmark], function(error, info) {
-          if (error != undefined)
-              res.sendStatus(503);
-          else
-              res.send('File was Uploaded Successfully');
+          if (error != undefined) {
+              res.status(503).json({
+                result: false,
+                reason: "사진 업로드 실패"
+              });
+              } else {
+              res.json({
+                result: true,
+                reason: "캡쳐 되었음"
+              });
+              }
       });
   });
 
   router.post('/update', function(req, res) {
-    var update_memo = req.body.memo;
-    var card_id = req.body.card_id;
-      connection.query('update card set memo = ? where card_id = ?;',
-          //?로 표현하지 않고, ? 대신 어떤 값을 넣으면 그자리에 계속 그 값만 들어가게된다.
-          [update_memo, card_id], function(err, cursor) {
-            if(!err) {
-              if(cursor[0]) {
-                res.json({
-                  result : true, reason : "update done"
-                });
+      var update_memo = req.body.memo,
+          card_id = req.body.card_id;
+      connection.query('update card set memo = ? where card_id = ?;', [update_memo, card_id], function(err, cursor) {
+              if (!err) {
+                  if (cursor[0]) {
+                      res.json({
+                          result: true,
+                          reason: "update done"
+                      });
+                  } else {
+                      res.status(506).json({
+                          result: false,
+                          reason: "no card"
+                      });
+                  }
               } else {
-                res.json({
-                  result : false, reason : "no card"
-                });
+                  res.status(503).json({
+                    result: false,
+                    reason: "업데이트 실패"
+                  });
               }
-            } else {
-              res.sendStatus(503);
-            }
           });
   });
 
   router.get('/delete/:card_id', function(req, res) {
-      connection.query('delete from card where card_id=?;', [req.params.card_id], function(error, cursor) {
-        if(!error) {
-          res.json({
-            result : true, reason : "카드 삭제 성공"
-          });
-        } else {
-          res.json({
-            result : false, reason : "카드 삭제 실퍠"
-          });
-        }
+    var card_id = req.params.card_id;
+      connection.query('delete from card where card_id = ?;', [card_id], function(error, cursor) {
+          if (!error) {
+              res.json({
+                  result: true,
+                  reason: "카드 삭제 성공"
+              });
+          } else {
+              res.status(506).json({
+                  result: false,
+                  reason: "카드 삭제 실퍠"
+              });
+          }
       });
-
   });
 
   module.exports = router;
