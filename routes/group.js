@@ -28,7 +28,6 @@ router.post('/grouplist', function(req, res) {
         if(!error) {
           if(cursor.length >0) {
               res.json(cursor);
-
         } else {
           res.json({
             result : true , reason : "그룹리스트보기실패"
@@ -39,6 +38,28 @@ router.post('/grouplist', function(req, res) {
       }
       });
 });
+router.post('/grouplist/latest', function(req, res) {
+  var user_id = req.body.user_id,
+      groupname = req.body.groupname;
+
+      connection.query('select c.photo_url from card c, ping_group p, user u where p.groupname = c.groupname '+
+      'and p.user_id = u.user_id and c.card_id in (select max(card_id) from card, user where card.user_id = user.user_id)and p.user_id = ? and p.groupname=?;'
+      , [user_id , groupname], function (error, cursor) {
+        if(!error) {
+          if(cursor.length >0) {
+              res.json(cursor);//url을 띄움
+        } else {
+          res.json({
+            result : true , reason : "해당 그룹에 카드 없음"//그룹에 카드가 없으니까  url 안띄움
+          });
+        }
+      } else {
+        res.sendStatus(503);
+      }
+      });
+});
+
+
 
 router.post('/grouplist/enter', function(req, res) {
   var groupname = req.body.groupname;
