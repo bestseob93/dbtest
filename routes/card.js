@@ -26,7 +26,7 @@
   var ran_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   var ran_result = '';
   for (var i = 0; i < 6; i++) {
-      ran_result += ran_string.charAt(Math.random() * ran_string.length);
+      ran_result = ran_result + ran_string.charAt(Math.random() * ran_string.length);
   };
 
   var check_time;
@@ -42,7 +42,6 @@
           cb(null, check_time + ran_result + "." + file.originalname.split('.').pop());
       },
       bucket: 'appjamping',
-      acl: 'public-read',
       region: 'ap-northeast-2'
   });
 
