@@ -23,9 +23,8 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-    res.redirect(/card/list/);
-  // res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
-  //           '<a href="/card/">카드 보내기 </a>');
+  res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
+            '<a href="/card/">카드 보내기 </a>');
 } else {
   res.redirect('/auth/login');
 }
