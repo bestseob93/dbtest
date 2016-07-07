@@ -55,6 +55,31 @@
       });
   });
 
+  router.get('/list/:user_id', function(req, res, next) {
+      //console.log(req.session);
+      var user_id = req.params.user_id;
+
+      connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
+          if (!error) {
+              if (cursor.length > 0) {
+                  console.log(cursor);
+                  // res.json(cursor);
+                  res.json({result: true, cursor: cursor});
+              } else {
+                  res.status(506).json({
+                    result: false,
+                    reason: "DB 에러"
+                  })
+              }
+          } else {
+              res.status(503).json({
+                result: false,
+                reason: "리스트 출력 실패"
+              });
+          }
+      });
+  });
+
   router.post('/card_group_move', function(req, res) {
       var card_group_move = req.body.cardgroupmove,
           card_id = req.body.card_id,

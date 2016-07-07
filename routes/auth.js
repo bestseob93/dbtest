@@ -22,7 +22,7 @@ var connection = mysql.createConnection({
 
 /* login */
 var auss;
-router.get('/list/:user_id', function(req, res, next) {
+router.get('/list/', function(req, res, next) {
     //console.log(req.session);
     var user_id = auss;
 
@@ -30,8 +30,8 @@ router.get('/list/:user_id', function(req, res, next) {
         if (!error) {
             if (cursor.length > 0) {
                 console.log(cursor);
-                // res.json(cursor);
-                res.json({result: true, cursor: cursor});
+                 res.json(cursor);
+                //res.json({result: true, cursor: cursor});
             } else {
                 res.status(506).json({
                   result: false,
