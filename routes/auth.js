@@ -212,14 +212,10 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
       console.log(cursor);
         if(!error) {
             if(cursor[0]) {
-              hasher({
-                  password: passwd, salt: cursor[0].salt
-              }, function(err, pass, salt, hash) {
+              return hasher({password: passwd, salt: cursor[0].salt}, function(err, pass, salt, hash) {
                 if(hash == cursor[0].passwd) {
                   if(update_passwd == update_repasswd){
-                    hasher({
-                        password: req.body.update_passwd
-                    }, function (err, pass,salt, hash) {
+                    hasher({ password: update_passwd}, function (err, pass,salt, hash) {
                       var upuser = {
                           passwd : hash,
                           salt : salt
