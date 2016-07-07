@@ -50,7 +50,7 @@ router.get('/logout', function(req, res) {
 
 router.post('/login/done', passport.authenticate(
   'local', {
-    successRedirect : '',
+    successRedirect : '/card/list',
     failureRedirect : '/auth/fuck'
   }
   )
