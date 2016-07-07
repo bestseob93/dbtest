@@ -130,10 +130,9 @@ router.post('/bookmarking', function(req, res) {
           photo_url = req.file.s3.Location,
           internet_url = req.body.internet_url,
           userid = req.body.user_id,
-          group_def = '미분류',
-          bookmark = req.body.bookmark;
+          group_def = '미분류';
 
-      connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname, bookmark) VALUES (?, ?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def, bookmark], function(error, info) {
+      connection.query('INSERT INTO card ( memo, filename, photo_url, internet_url, user_id, groupname) VALUES (?, ?, ?, ?, ?, ?) ;', [memo, file_name, photo_url, internet_url, userid, group_def], function(error, info) {
           if (error != undefined) {
               res.status(503).json({
                 result: false,
