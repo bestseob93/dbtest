@@ -26,7 +26,7 @@ router.get('/welcome', function(req, res) {
   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
             '<a href="/card/">카드 보내기 </a>');
 } else {
-  res.redirect('/auth/login');
+  res.redirect('/card/list/:user.user_id');
 }
 });
 
@@ -50,7 +50,7 @@ router.get('/logout', function(req, res) {
 
 router.post('/login/done', passport.authenticate(
   'local', {
-    successRedirect : '/card/list/',
+    successRedirect : '/auth/welcome',
     failureRedirect : '/auth/fuck'
   }
   )
