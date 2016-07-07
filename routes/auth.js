@@ -11,22 +11,14 @@ var router = express.Router();
 var hasher = bkfd2Password();
 
 var options = {
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
+
 };
 
 var sessionstore = new mysqlstore(options);
 
 
 var connection = mysql.createConnection({
-  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
-  'port' : '3306',
-  'user' : 'ping',
-  'password' : 'd85z85755',
-  'database' : 'pingdb'
+
 });
 
 /* login */
@@ -228,9 +220,10 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                     hasher({
                         password: update_passwd
                     }, function (err, pass,salt, hash) {
-                      var hapasswd = hash,
-                          salt = salt;
-                    connection.query('update user set passwd = ? salt = ? where user_id=?', [hapasswd, salt, user_id], function(error) {
+                      var upuser = {hapasswd : hash,
+                          salt : salt
+                        };
+                    connection.query('update user set ? where user_id=?', [upuser, user_id], function(error) {
 
                         if (!error) {
                             res.end("수정하였습니다.");
