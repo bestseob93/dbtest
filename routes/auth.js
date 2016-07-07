@@ -141,7 +141,7 @@ router.post('/join/insert', function(req, res, next) {
                     if (cursor[0]) {
                         // var string_cursor = JSON.stringify(cursor[0].user_id);
                         // if (string_cursor == user_id) {
-                            res.json({
+                            res.Staus(503).json({
                               result : false, reason : "이미 있는 아이디 입니다."
                           });
                         // } else {
