@@ -22,7 +22,7 @@ var connection = mysql.createConnection({
 
 /* login */
 var auss;
-router.get('/list/', function(req, res, next) {
+router.get('/list/:user_id', function(req, res, next) {
     //console.log(req.session);
     var user_id = auss;
 
@@ -46,6 +46,30 @@ router.get('/list/', function(req, res, next) {
         }
     });
 });
+// router.get('/list/', function(req, res, next) {
+//     //console.log(req.session);
+//     var user_id = auss;
+//
+//     connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
+//         if (!error) {
+//             if (cursor.length > 0) {
+//                 console.log(cursor);
+//                 // res.json(cursor);
+//                 res.json({result: true, cursor: cursor});
+//             } else {
+//                 res.status(506).json({
+//                   result: false,
+//                   reason: "DB 에러"
+//                 })
+//             }
+//         } else {
+//             res.status(503).json({
+//               result: false,
+//               reason: "리스트 출력 실패"
+//             });
+//         }
+//     });
+// });
 
 // router.get('/welcome', function(req, res) {
 //   //var auss = req.params.user_id;
