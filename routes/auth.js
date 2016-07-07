@@ -218,9 +218,9 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                 if(hash == cursor[0].passwd) {
                   if(update_passwd == update_repasswd){
                     hasher({
-                        password: update_passwd
+                        password: req.body.update_passwd
                     }, function (err, pass,salt, hash) {
-                      var upuser = {hapasswd : hash,
+                      var upuser = {passwd : hash,
                           salt : salt
                         };
                     connection.query('update user set ? where user_id=?', [upuser, user_id], function(error) {
