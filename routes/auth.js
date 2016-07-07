@@ -234,6 +234,9 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
       } else {
                  res.end("유저 없음.");
         }
+      } else {
+        res.status(506);
+      }
     });
 });
 
