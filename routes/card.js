@@ -11,7 +11,11 @@
   var s3 = require('multer-storage-s3');
 
   var options = {
-
+    'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+    'port' : '3306',
+    'user' : 'ping',
+    'password' : 'd85z85755',
+    'database' : 'pingdb'
   };
 
   var sessionstore = new mysqlstore(options);
@@ -56,7 +60,7 @@
   });
 
   router.get('/list/:user_id', function(req, res, next) {
-      console.log(req.session);
+      //console.log(req.session);
       var user_id = req.params.user_id;
       connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
           if (!error) {

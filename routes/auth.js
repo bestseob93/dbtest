@@ -21,18 +21,18 @@ var connection = mysql.createConnection({
 });
 
 /* login */
-router.post('/welcome', function(req, res) {
-  console.log("웰컴 : " + user);
-  var auss = req.body.user_id;
-  console.log(auss);
-  res.redirect('/card/list/' + auss + '');
+var auss;
+router.get('/welcome', function(req, res) {
+  //var auss = req.params.user_id;
+  console.log(auss + "!!!!!!!!!!!!!!!!");
+  res.redirect('/card/list/'+auss);
 
 //   if(req.user && req.user.user_name) {
 //   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
 //             '<a href="/card/">카드 보내기 </a>');
 // } else {
 //   res.redirect('/auth/login');
-}
+//}
 });
 
 router.get('/fuck', function(req, res) {
@@ -106,8 +106,9 @@ router.post('/login/done', passport.authenticate(
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
                     console.log(hash);
                   if( hash == user.passwd ) {
-                    console.log('LocalStrategy', user);
-                    temp = user.user_id;
+                    //console.log('LocalStrategy', user);
+                    auss = user.user_id;
+
                     done(null, user);
                   } else {
                     done (null, false);

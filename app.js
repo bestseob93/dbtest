@@ -18,7 +18,7 @@ var group = require('./routes/group');
 var hasher = bkfd2Password();
 
 var options = {
-  
+
 };
 
 var sessionstore = new mysqlstore(options);
