@@ -23,7 +23,7 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-    res.redirect('/card/list/:user.user_id');
+    res.redirect(/card/list/);
   // res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
   //           '<a href="/card/">카드 보내기 </a>');
 } else {
@@ -51,7 +51,7 @@ router.get('/logout', function(req, res) {
 
 router.post('/login/done', passport.authenticate(
   'local', {
-    successRedirect : '/auth/welcome',
+    successRedirect : '/card/list',
     failureRedirect : '/auth/fuck'
   }
   )
