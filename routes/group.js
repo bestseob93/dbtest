@@ -42,9 +42,7 @@ router.post('/grouplist/latest', function(req, res) {
   var user_id = req.body.user_id,
       groupname = req.body.groupname;
 
-      connection.query('select card.photo_url from card where c.card_id in '+
-      '(select max(card_id) from card c, user u, ping_group p where p.user_id = u.user_id and c.user_id = u.user_id and p.groupname=c.groupname and u.user_id = ? and p.groupname=? ) ;'
-      , [user_id , groupname], function (error, cursor) {
+      connection.query('select card.photo_url from card where card.card_id in (select max(card_id) from card c, user u, ping_group p where p.user_id = u.user_id and c.user_id = u.user_id and p.groupname=c.groupname and u.user_id = ? and p.groupname=? );', [user_id , groupname], function (error, cursor) {
         if(!error) {
           if(cursor.length >0) {
             console.log(cursor);
