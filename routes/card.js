@@ -31,7 +31,7 @@
 
   var check_time;
   check_time = new Date();
-  check_time = check_time.getFullYear() + '' + (check_time.getMonth() + 1) + '' + check_time.getDate() + '' + check_time.getHours() + '' + check_time.getMinutes() + '' + check_time.getSeconds();
+  check_time = check_time.getFullYear() + '' + (check_time.getMonth() + 1) + '' + check_time.getDate() + '' + check_time.getHours() + '' + check_time.getMinutes() + '' + check_time.getSeconds() + '' + check_time.getMilliseconds();
 
 
   var storage = s3({
