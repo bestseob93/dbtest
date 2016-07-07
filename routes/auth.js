@@ -23,10 +23,11 @@ var connection = mysql.createConnection({
 /* login */
 router.get('/welcome', function(req, res) {
   if(req.user && req.user.user_name) {
-  res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
-            '<a href="/card/">카드 보내기 </a>');
+    res.redirect('/card/list/:user.user_id');
+  // res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
+  //           '<a href="/card/">카드 보내기 </a>');
 } else {
-  res.redirect('/card/list/:user.user_id');
+  res.redirect('/auth/login');
 }
 });
 
