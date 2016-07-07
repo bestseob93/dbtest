@@ -235,7 +235,6 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                  res.end("유저 없음.");
         }
     });
-    });
 });
 
 router.post('/join/delete', function(req, res) {//회원 탈퇴
