@@ -42,13 +42,13 @@ router.get('/login', function(req, res) {
 router.get('/logout', function(req, res) {
   req.logout();
 
-  req.session.save(function(){
+  req.session.save(function() {
     req.session.destroy(function(err){
         res.redirect('/auth/login');
     });
+  });
+});
 
-});
-});
 router.post('/login/done', passport.authenticate(
   'local', {
     successRedirect : '/card/list/',
@@ -109,11 +109,10 @@ router.post('/login/done', passport.authenticate(
                   }
 
                 });
-                }else{
+                } else {
                     console.log("유저없오");
                     return done('there is no user');//수정
                 }
-
             }
           });
     }
@@ -209,34 +208,32 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
         hasher({
-            password: req.body.passwd
+            password: passwd
         }, function(err, pass, salt, hash) {
-    connection.query('select * from user where user_id =? and passwd=?;',[user_id,passwd], function(error,cursor){
-        if(!error){
-            if(cursor[0]){
-                  var string_passwd = JSON.stringify(update_passwd);
-                  var string_repasswd = JSON.stringify(update_repasswd);
+          var hapasswd = hash,
+              salt = salt;
 
-                  if(string_passwd == string_repasswd){
-
-                    connection.query('update user set passwd=? where user_id=?',
-                            [update_passwd,user_id],function(error) {
+    connection.query('select * from user where user_id =? and passwd=?;',[user_id,hapasswd], function(error,cursor){
+        if(!error) {
+            if(cursor[0]) {
+                  if(update_passwd == update_repasswd){
+                    connection.query('update user set passwd=? where user_id=?', [update_passwd,user_id], function(error) {
                         if (!error) {
                             res.end("수정하였습니다.");
                         } else {
                             res.status(503);
                         }
                     });
-                  }else{
+                  } else {
                       res.end("수정될 비밀번호가 일치하지 않습니다.");
                   }
-            }
-            else{
+            } else {
                 res.end("비밀번호가 일치하지 않습니다.");
             }
-        }else{
+        } else {
                  res.end("왜에러냐");
         }
+    });
     });
 });
 
