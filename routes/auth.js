@@ -208,6 +208,9 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
+        hasher({
+            password: req.body.passwd
+        }, function(err, pass, salt, hash) {
     connection.query('select * from user where user_id =? and passwd=?;',[user_id,passwd], function(error,cursor){
         if(!error){
             if(cursor[0]){

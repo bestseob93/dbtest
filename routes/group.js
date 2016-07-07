@@ -47,8 +47,10 @@ router.post('/grouplist/latest', function(req, res) {
       , [user_id , groupname], function (error, cursor) {
         if(!error) {
           if(cursor.length >0) {
+            console.log(cursor);
               res.json(cursor);//url을 띄움
         } else {
+          console.log("hihi");
           res.json({
             result : true , reason : "해당 그룹에 카드 없음"//그룹에 카드가 없으니까  url 안띄움
           });
