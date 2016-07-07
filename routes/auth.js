@@ -202,14 +202,10 @@ router.post('/join/insert', function(req, res, next) {
 
 router.post('/join/update', function(req, res) {//비밀번호 수정
 
-    var user_id = req.user.user_id,
+    var user_id = req.body.user_id,
         passwd = req.body.passwd,
         update_passwd = req.body.update_passwd,
         update_repasswd = req.body.update_repasswd;
-
-    console.log(req.session.user_id);
-
-    if(req.session.user_id == user_id) {
     connection.query('select * from user where user_id =? and passwd=?;',[user_id,passwd], function(error,cursor){
         if(!error){
             if(cursor[0]){
@@ -237,14 +233,10 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                  res.end("왜에러냐");
         }
     });
-    }else{
-        console.log("어디서약을팔아시발");
-        res.end("아이디같지않다");
-    }
 });
 
 router.post('/join/delete', function(req, res) {//회원 탈퇴
-    var user_id = req.user.user_id,
+    var user_id = req.body.user_id,
         passwd = req.body.passwd,
         repasswd = req.body.repasswd;
 
