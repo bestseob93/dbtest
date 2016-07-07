@@ -277,7 +277,7 @@ router.post('/join/delete', function(req, res) {//회원 탈퇴
             if(!error){
                 if(cursor[0]) {
                   hasher({
-                    password : passwd, salt : cursor[0].salt, function(err, pass, salt, hash) {
+                    password : passwd, salt : cursor[0].salt }, function(err, pass, salt, hash) {
                       if(hash == cursor[0].passwd) {
                         connection.query('delete from card where user_id=?;',[user_id],function(error,cursor){
                           if(!error) {
