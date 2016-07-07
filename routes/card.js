@@ -154,18 +154,11 @@ router.post('/bookmarking', function(req, res) {
           card_id = req.body.card_id;
       connection.query('update card set memo = ? where card_id = ?;', [update_memo, card_id], function(err, cursor) {
               if (!err) {
-                  if (cursor[0]) {
                       res.json({
                           result: true,
                           reason: "update done"
                       });
                   } else {
-                      res.status(506).json({
-                          result: false,
-                          reason: "no card"
-                      });
-                  }
-              } else {
                   res.status(503).json({
                     result: false,
                     reason: "업데이트 실패"

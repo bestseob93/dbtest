@@ -117,18 +117,10 @@ router.post('/update_groupname', function(req, res) {
 
     connection.query('update ping_group set groupname=? where groupname=? and user_id=?', [update_groupname, groupname, user_id], function(error, cursor) {
         if (!error) {
-            if (cursor[0]) {
                 res.json({
                     result: true,
                     reason: "그룹이름변경"
                 });
-            } else {
-                res.json({
-                    result: false,
-                    reason: "그룹이름변경 쿼리결과x"
-                });
-            }
-
         } else {
             res.json({
                 result: false,

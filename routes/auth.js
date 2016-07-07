@@ -275,11 +275,11 @@ router.post('/join/delete', function(req, res) {//회원 탈퇴
                   hasher({
                     password : passwd, salt : cursor[0].salt }, function(err, pass, salt, hash) {
                       if(hash == cursor[0].passwd) {
-                        connection.query('delete from card where user_id=?;',[user_id],function(error,cursor){
+                        connection.query('delete from card where user_id=?;',[user_id],function(error){
                           if(!error) {
-                              connection.query('delete from ping_group where user_id=?;',[user_id],function(error,cursor){
+                              connection.query('delete from ping_group where user_id=?;',[user_id],function(error){
                               if(!error) {
-                                  connection.query('delete from user where user_id=?;',[user_id],function(error,cursor){
+                                  connection.query('delete from user where user_id=?;',[user_id],function(error){
                                   if(!error) {
                                       res.json({
                                         result : true, reason : "삭제 성공"
