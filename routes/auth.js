@@ -178,7 +178,7 @@ router.post('/join/insert', function(req, res, next) {
                                       });
                                       req.login(user, function(error){
                                         req.session.save(function(){
-                                          res.redirect('/auth/welcome');
+                                          res.redirect('/card/list');
                                         });
                                       });
                                     }
