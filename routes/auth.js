@@ -11,14 +11,22 @@ var router = express.Router();
 var hasher = bkfd2Password();
 
 var options = {
-
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
 };
 
 var sessionstore = new mysqlstore(options);
 
 
 var connection = mysql.createConnection({
-
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
 });
 
 /* login */
@@ -230,19 +238,20 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
                             res.status(503);
                         }
                     });
+                  });
                   } else {
                       res.end("수정될 비밀번호가 일치하지 않습니다.");
                   }
             } else {
                 res.end("기존 비밀번호가 일치하지 않습니다.");
             }
+
         });
       } else {
                  res.end("유저 없음.");
         }
-      }
-      });
-      else {
+
+      } else {
         res.status(506);
       }
     });
