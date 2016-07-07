@@ -288,7 +288,7 @@ router.post('/join/delete', function(req, res) {//회원 탈퇴
                                       res.json({
                                         result : true, reason : "삭제 성공"
                                       });
-                                  }e lse {
+                                  } else {
                                       console.log("유저 삭제 실패");
                                       res.status(503).json({
                                         result : false, reason : "유저 삭제 실패"
