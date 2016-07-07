@@ -42,8 +42,8 @@ router.post('/grouplist/latest', function(req, res) {
   var user_id = req.body.user_id,
       groupname = req.body.groupname;
 
-      connection.query('select c.photo_url from card c, ping_group p, user u where p.groupname = c.groupname '+
-      'and p.user_id = u.user_id and c.card_id in (select max(card_id) from card, user where card.user_id = user.user_id)and p.user_id = ? and p.groupname=?;'
+      connection.query('select card.photo_url from card where c.card_id in '+
+      '(select max(card_id) from card c, user u, ping_group p where p.user_id = u.user_id and c.user_id = u.user_id and p.groupname=c.groupname and u.user_id = ? and p.groupname=? ) ;'
       , [user_id , groupname], function (error, cursor) {
         if(!error) {
           if(cursor.length >0) {
