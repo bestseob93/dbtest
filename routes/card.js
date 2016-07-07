@@ -45,9 +45,7 @@
       region: 'ap-northeast-2'
   });
 
-  var upload = multer({
-      storage: storage
-  });
+  var upload = multer({ storage: storage });
 
   router.get("/", function(req, res) {
       res.render('card', function(error, content) {
