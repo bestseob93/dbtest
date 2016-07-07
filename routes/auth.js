@@ -21,12 +21,36 @@ var connection = mysql.createConnection({
 });
 
 /* login */
-  var auss;
-router.get('/welcome', function(req, res) {
+var auss;
+router.get('/list/', function(req, res, next) {
+    //console.log(req.session);
+    var user_id = auss;
 
-  //var auss = req.params.user_id;
-  console.log(auss + "!!!!!!!!!!!!!!!!");
-  res.redirect('/card/list/'+auss);
+    connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
+        if (!error) {
+            if (cursor.length > 0) {
+                console.log(cursor);
+                // res.json(cursor);
+                res.json({result: true, cursor: cursor});
+            } else {
+                res.status(506).json({
+                  result: false,
+                  reason: "DB 에러"
+                })
+            }
+        } else {
+            res.status(503).json({
+              result: false,
+              reason: "리스트 출력 실패"
+            });
+        }
+    });
+});
+
+// router.get('/welcome', function(req, res) {
+//   //var auss = req.params.user_id;
+//   console.log(auss + "!!!!!!!!!!!!!!!!");
+//   res.redirect('/card/list/'+auss);
 
 //   if(req.user && req.user.user_name) {
 //   res.send('hello login, <p>' + req.user.user_name + '</p>' + '<a href="/auth/logout">logout</a>' +
@@ -34,7 +58,7 @@ router.get('/welcome', function(req, res) {
 // } else {
 //   res.redirect('/auth/login');
 //}
-});
+// });
 
 router.get('/fuck', function(req, res) {
   res.send('hello fucker');     // 비번 틀렸을 때
@@ -56,7 +80,7 @@ router.get('/logout', function(req, res) {
 
 router.post('/login/done', passport.authenticate(
   'local', {
-    successRedirect : '/auth/welcome',
+    successRedirect : '/auth/list',
     failureRedirect : '/auth/fuck'
   }
   )
