@@ -217,7 +217,13 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
               }, function(err, pass, salt, hash) {
                 if(hash == cursor[0].passwd) {
                   if(update_passwd == update_repasswd){
-                    connection.query('update user set passwd=? where user_id=?', [update_passwd,user_id], function(error) {
+                    hasher({
+                        password: update_passwd
+                    }, function (err, pass,salt, hash) {
+                      var hapasswd = hash,
+                          salt = salt;
+                    connection.query('update user set passwd = ? salt = ? where user_id=?', [hapasswd, salt, user_id], function(error) {
+
                         if (!error) {
                             res.end("수정하였습니다.");
                         } else {
@@ -234,7 +240,9 @@ router.post('/join/update', function(req, res) {//비밀번호 수정
       } else {
                  res.end("유저 없음.");
         }
-      } else {
+      }
+      });
+      else {
         res.status(506);
       }
     });
