@@ -231,6 +231,7 @@ router.post('/join/insert', function(req, res, next) {
                                           console.log("회원 가입 시 그룹생성 에러");
                                         }
                                       });
+                                      auss = user.user_id;
                                       req.login(user, function(error){
                                         req.session.save(function(){
                                           res.redirect('/auth/list');
