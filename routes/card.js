@@ -18,6 +18,7 @@
 
 
   var connection = mysql.createConnection({
+
   });
 
   /* 랜덤 문자 출력
