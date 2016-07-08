@@ -63,8 +63,7 @@
           if (!error) {
               if (cursor.length > 0) {
                   console.log(cursor);
-                  // res.json(cursor);
-                  res.json({result: true, cursor: cursor});
+                  res.json(cursor);
               } else {
                   res.status(506).json({
                     result: false,
