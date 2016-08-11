@@ -5,11 +5,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session = require('express-session'); /**/
-var mysqlstore = require('express-mysql-session')(session); /**/
-var bkfd2Password = require('pbkdf2-password'); /**/
-var passport = require('passport'); /**/
-var LocalStrategy = require('passport-local').Strategy; /**/
+var session = require('express-session');
+var mysqlstore = require('express-mysql-session')(session);
+var bkfd2Password = require('pbkdf2-password');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 var card = require('./routes/card');
 var auth = require('./routes/auth');
@@ -18,7 +18,11 @@ var group = require('./routes/group');
 var hasher = bkfd2Password();
 
 var options = {
-
+  'host' : 'appjam-ping.cfsveedruyrb.ap-northeast-2.rds.amazonaws.com',
+  'port' : '3306',
+  'user' : 'ping',
+  'password' : 'd85z85755',
+  'database' : 'pingdb'
 };
 
 var sessionstore = new mysqlstore(options);
@@ -36,14 +40,20 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({  /**/
+app.use(session({
+  key : 'sid',
   secret : 'asasdfdfsf',
   resave : false,
-  saveUninitialized : true,
+  saveUninitialized : false,
+  cookie : {
+    maxAge: 1000 * 60 // 쿠키 유지 시간
+  },
   store : sessionstore
 }));
-app.use(passport.initialize()); /**/
-app.use(passport.session());  /**/
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 

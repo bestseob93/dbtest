@@ -1,21 +1,10 @@
   var express = require('express');
-  var session = require('express-session');
-  var mysqlstore = require('express-mysql-session')(session);
-  var passport = require('passport');
-  var LocalStrategy = require('passport-local').Strategy; /**/
-  var authhes = require('./auth');
+  var mysql = require('mysql');
+
   var router = express.Router();
 
   var multer = require('multer');
-  var mysql = require('mysql');
   var s3 = require('multer-storage-s3');
-
-  var options = {
-
-  };
-
-  var sessionstore = new mysqlstore(options);
-
 
   var connection = mysql.createConnection({
 
@@ -55,32 +44,38 @@
       });
   });
 
-  router.get('/list/:user_id', function(req, res, next) {
+  router.get('/:user_id', function(req, res, next) {
       //console.log(req.session);
-      var user_id = req.params.user_id;
-
-      connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
-          if (!error) {
-              if (cursor.length > 0) {
-                  console.log(cursor);
-                  res.json(cursor);
+      var token = req.params.token;
+      connection.query('select user_id from ping_token where access_token = ?;', [token], function(err, cursor) {
+        console.log("카드리스트 로그 : " + cursor);
+        if(cursor[0]) {
+          connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [cursor], function(error, cursor) {
+              if (!error) {
+                  if (cursor.length > 0) {
+                      console.log(cursor);
+                      res.json(cursor);
+                  } else {
+                      res.status(506).json({
+                        result: false,
+                        reason: "DB 에러"
+                      });
+                  }
               } else {
-                  res.status(506).json({
+                  res.status(503).json({
                     result: false,
-                    reason: "DB 에러"
-                  })
+                    reason: "리스트 출력 실패"
+                  });
               }
-          } else {
-              res.status(503).json({
-                result: false,
-                reason: "리스트 출력 실패"
-              });
-          }
+          });
+        } else {
+          res.sendStatus(503);
+        }
       });
   });
 
   router.post('/card_group_move', function(req, res) {
-      var card_group_move = req.body.cardgroupmove,
+      var card_group_move = req.body.card_group_move,
           card_id = req.body.card_id,
           user_id = req.body.user_id;
 

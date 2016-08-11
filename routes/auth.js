@@ -1,8 +1,5 @@
 var express = require('express');
-var session = require('express-session');
-var mysqlstore = require('express-mysql-session')(session);
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy; /**/
+var jwt = require('jwt-simple');
 var bkfd2Password = require('pbkdf2-password');
 var mysql = require('mysql');
 
@@ -10,41 +7,14 @@ var router = express.Router();
 
 var hasher = bkfd2Password();
 
-var options = {
-
-};
-
-var sessionstore = new mysqlstore(options);
-
 var connection = mysql.createConnection({
 
 });
 
 /* login */
-var auss;
-router.get('/list/', function(req, res, next) {
-    //console.log(req.session);
-    var user_id = auss;
 
-    connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(error, cursor) {
-        if (!error) {
-            if (cursor.length > 0) {
-                console.log(cursor);
-                 res.json(cursor);
-                //res.json({result: true, cursor: cursor});
-            } else {
-                res.status(506).json({
-                  result: false,
-                  reason: "DB 에러"
-                })
-            }
-        } else {
-            res.status(503).json({
-              result: false,
-              reason: "리스트 출력 실패"
-            });
-        }
-    });
+router.get('/welcome', function(req, res) {
+
 });
 
 
@@ -58,53 +28,25 @@ router.get('/login', function(req, res) {
 
 router.get('/logout', function(req, res) {
   req.logout();
-
   req.session.save(function() {
-    req.session.destroy(function(err){
         res.redirect('/auth/login');
-    });
   });
 });
 
-router.post('/login/done', passport.authenticate(
-  'local', {
-    successRedirect : '/auth/list',
-    failureRedirect : '/auth/fuck'
-  }
-  )
-  );
 
-  passport.serializeUser(function(user, done) {
-     console.log('serializeUser', user);
-     var a = user.user_id;
-     console.log('hello' + a);
-    done(null, user.user_id);
-    console.log('hi man : ' + a);
-  });
+router.post('/login/done', function(req, res) {
+  var jwt_body = {
+    name: req.body.user_id,
+    passwd: req.body.passwd
+  };
 
-  passport.deserializeUser(function(id, done) {
-    console.log('deserializeUser', id);
-       connection.query('select * from user where user_id = ?;', [id], function(err, cursor) {
-      if(err) {
-        console.log(err);
-        done('there is no user');
-      } else {
-          if(cursor[0]){
-            done(null, cursor[0]);
-          }else{
-              done(null, false);
-          }
-      }
-    });
-  });
+  var secret = 'common wolf fly bend';
 
-  passport.use(new LocalStrategy({
-    usernameField : 'user_id',
-    passwordField : 'passwd',
-    passReqToCallback : true
-  }, function(req, user_id, passwd, done) {
-      var uid = user_id,
-          pwd = passwd;
+  var token = jwt.encode(jwt_body, secret);
+  console.log("token 값: " + token);
+
+      var uid = jwt_body.name,
+          pwd = jwt_body.passwd;
           connection.query('select * from user where user_id = ?;', [uid], function(error, cursor) {
             if(error) {
               console.log("에러");
@@ -112,30 +54,31 @@ router.post('/login/done', passport.authenticate(
             }
             else {
             if(cursor[0]) {
-                    console.log(cursor[0]);
                     console.log("동일");
                     var user = cursor[0];
 
                     return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
-                    console.log(hash);
+                    console.log("hash값" + hash);
                   if( hash == user.passwd ) {
-                    //console.log('LocalStrategy', user);
-                    auss = user.user_id;
-
-                    done(null, user);
+                    connection.query('INSERT INTO ping_token (access_token, user_id) VALUES (?, ?);', [token, uid], function(err) {
+                      if(err) {
+                        res.sendStatus(503);
+                        console.log("회원 가입 시 토큰 발행 에러");
+                      } else {
+                        console.log("로그인 성공");
+                        res.redirect_to('/auth/welcome');
+                      }
+                    });
                   } else {
-                    done (null, false);
+                    console.log("비번 틀림");
                   }
-
                 });
                 } else {
-                    console.log("유저없오");
-                    return done('there is no user');//수정
+                    console.log("유저없당");
                 }
             }
           });
-    }
-  ));
+  });
 
   /* join */
 router.get('/join', function(req, res, next) {
@@ -149,9 +92,19 @@ router.get('/join/welcome', function(req, res, next) {
 
 
 router.post('/join/insert', function(req, res, next) {
-    var before_passwd = req.body.passwd,
+  var jwt_container = {
+    name: req.body.user_id,
+    passwd: req.body.passwd
+  };
+
+  var secret = 'common wolf fly bend';
+
+  var token = jwt.encode(jwt_container, secret);
+  console.log("token 값: " + token);
+
+    var before_passwd = jwt_container.passwd,
         before_repasswd = req.body.repasswd,
-        user_id = req.body.user_id;
+        user_id = jwt_container.name;
 
         connection.query('select * from user where user_id=?;', [user_id],
             function(error, cursor) {
@@ -172,6 +125,7 @@ router.post('/join/insert', function(req, res, next) {
                               password: req.body.passwd
                           }, function(err, pass, salt, hash) {
                             var user = {
+                              authId: 'local:' + req.body.user_id,
                               user_id: req.body.user_id,
                               passwd: hash,
                               user_name: req.body.user_name,
@@ -186,32 +140,29 @@ router.post('/join/insert', function(req, res, next) {
                                       console.log(error);
                                       res.status(500);
                                     } else {
-
                                       var group_def = '미분류';
 
                                       connection.query('INSERT INTO ping_group (groupname, user_id) VALUES (?, ?) ;', [group_def, user.user_id], function(err){
                                         if(err) {
                                           res.sendStatus(503);
                                           console.log("회원 가입 시 그룹생성 에러");
+                                        } else {
+                                          connection.quer('INSERT INTO ping_token (access_token, user_id) VALUES (?, ?);', [token, user_id], function(err){
+                                            if(err) {
+                                              res.sendStatus(503);
+                                              console.log("회원 가입 시 토큰 발행 에러");
+                                            }
+                                          });
                                         }
                                       });
-                                      auss = user.user_id;
-                                      req.login(user, function(error){
-                                        req.session.save(function(){
-                                          res.redirect('/auth/list');
-                                        });
-                                      });
                                     }
-                                      // if (!error) {
-                                      //     res.redirect('/auth/join/welcome');
-                                      //     console.log(" 회원등록 완료");
-                                      // } else {
-                                      //     res.status(503);
-                                      // }
                                   });
                           });
                       } else {
-                          res.send("비밀번호가 일치하지 않습니다.");
+                          res.status(504).json({
+                            result: false,
+                            reason: "비밀번호가 일치하지 않습니다"
+                          });
                       }
                     }
                 } else {
