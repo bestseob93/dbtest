@@ -63,7 +63,7 @@ router.post('/login/done', function(req, res) {
                     connection.query('INSERT INTO ping_token (access_token, user_id) VALUES (?, ?);', [token, uid], function(err) {
                       if(err) {
                         res.sendStatus(503);
-                        console.log("회원 가입 시 토큰 발행 에러");
+                        console.log("로그인 시 토큰 발행 에러");
                       } else {
                         console.log("로그인 성공");
                         res.redirect_to('/auth/welcome');
@@ -125,7 +125,6 @@ router.post('/join/insert', function(req, res, next) {
                               password: req.body.passwd
                           }, function(err, pass, salt, hash) {
                             var user = {
-                              authId: 'local:' + req.body.user_id,
                               user_id: req.body.user_id,
                               passwd: hash,
                               user_name: req.body.user_name,
@@ -147,7 +146,7 @@ router.post('/join/insert', function(req, res, next) {
                                           res.sendStatus(503);
                                           console.log("회원 가입 시 그룹생성 에러");
                                         } else {
-                                          connection.quer('INSERT INTO ping_token (access_token, user_id) VALUES (?, ?);', [token, user_id], function(err){
+                                          connection.query('INSERT INTO ping_token (access_token, user_id) VALUES (?, ?);', [token, user_id], function(err){
                                             if(err) {
                                               res.sendStatus(503);
                                               console.log("회원 가입 시 토큰 발행 에러");

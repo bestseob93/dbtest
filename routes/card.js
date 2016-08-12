@@ -44,13 +44,15 @@
       });
   });
 
-  router.get('/:user_id', function(req, res, next) {
-      //console.log(req.session);
+  router.get('/list', function(req, res) {
       var token = req.params.token;
-      connection.query('select user_id from ping_token where access_token = ?;', [token], function(err, cursor) {
-        console.log("카드리스트 로그 : " + cursor);
-        if(cursor[0]) {
-          connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [cursor], function(error, cursor) {
+      connection.query('select user_id from ping_token where access_token = ?;', [token], function(err, result) {
+        if(err) {
+          console.log("찾을 수 없음");
+        } else {
+        console.log("카드리스트 로그 : " + result[0]);
+        if(result[0]) {
+          connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [result], function(error, cursor) {
               if (!error) {
                   if (cursor.length > 0) {
                       console.log(cursor);
@@ -70,6 +72,7 @@
           });
         } else {
           res.sendStatus(503);
+        }
         }
       });
   });
