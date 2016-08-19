@@ -22,7 +22,8 @@ router.get('/', function(req, res) {
 });
 
 router.post('/grouplist', function(req, res) {
-    var user_id = req.body.user_id;
+
+    var token = req.headers.token;
 
     connection.query('select distinct p.groupname from ping_group p, user u where p.user_id = u.user_id and p.user_id = ?;', [user_id], function(error, cursor) {
         if (!error) {

@@ -158,10 +158,29 @@ router.post('/join/insert', function(req, res, next) {
 
                                                 /*** 최종 회원 가입 완료 ***/
                                                 if(!err) {
-                                                    res.status(200).json({
-                                                        result: true,
-                                                        reason: "회원가입 완료"
+                                                    connection.query('select u.user_id, u.user_name, p.access_token from user u, ping_token p where u.user_id = p.user_id and u.user_id = ?;', [user_id], function(err, cursor) {
+                                                      if(!err) {
+                                                        if(cursor[0]) {
+                                                          res.status(200).json({
+                                                              result: true,
+                                                              user_id: cursor[0].user_id,
+                                                              user_name: cursor[0].user_name,
+                                                              token: cursor[0].access_token
+                                                          });
+                                                        } else {
+                                                          res.status(507).json({
+                                                            result: false,
+                                                            reason: "유저정보 및 토큰 DB 존재 X"
+                                                          });
+                                                        }
+                                                      } else {
+                                                        res.status(508).json({
+                                                          result: false,
+                                                          reason: "DB 에러"
+                                                        });
+                                                      }
                                                     });
+
                                                 } else{
                                                     res.status(506).json({
                                                         result: false,
