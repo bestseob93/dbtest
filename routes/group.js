@@ -8,7 +8,6 @@ var s3 = require('multer-storage-s3');
 var connection = mysql.createConnection({
 
 });
-
 router.get('/', function(req, res) {
     res.render('group', function(error, content) {
         if (!error) {
