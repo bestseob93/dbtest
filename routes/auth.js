@@ -37,11 +37,6 @@ router.post('/login/done', function(req, res) {
         if(!error) {
             if(cursor[0]) {
                 var user = cursor[0];
-                res.status(200).json({
-                  result: true,
-                  user_id: user.user_id,
-                  user_name: user.user_name
-                });
 
                 console.log("회원정보 : \n");
                 console.log(user);
@@ -50,12 +45,15 @@ router.post('/login/done', function(req, res) {
 
                     if( hash == user.passwd ) {
 /*** 토큰 받아 오기 ***/
-                        connection.query('select access_token from ping_token where user_id = ?;', [uid], function(error, cursor) {
+                        connection.query('select u.user_id, u.user_name, p.access_token from ping_token p, user u where u.user_id = p.user_id and u.user_id = ?;', [user.user_id], function(error, cursor) {
                             if(!error){
                                 if(cursor[0]){
+                                  console.log(cursor[0]);
                                     res.status(200).json({
                                         result: true,
-                                        token: cursor[0].token
+                                        user_id: cursor[0].user_id,
+                                        user_name: cursor[0].user_name,
+                                        token: cursor[0].access_token
                                     });//여기에서 어떻게 response 할 것인가
                                 }else{
                                     res.status(505).json({
