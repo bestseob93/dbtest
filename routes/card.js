@@ -55,10 +55,10 @@ router.get('/list', function(req, res) {
                     var user_id = cursor[0].user_id;
 
 /*** 카드 리스트 출력  ***/
-                    connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(err, cursor) {
+                    connection.query('select card.card_id, card.memo, card.photo_url, card.internet_url, card.groupname, card.bookmark from user, card where user.user_id = card.user_id and user.user_id = ?;', [user_id], function(err, cursor) {
                         if (!err) {
                               if (cursor.length > 0) {
-                                  res.json(cursor);
+                                  res.status(200).json(cursor);
                               } else {
                                   res.status(504).json({
                                     result: false,
