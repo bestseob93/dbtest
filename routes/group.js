@@ -5,7 +5,9 @@ var multer = require('multer');
 var mysql = require('mysql');
 var s3 = require('multer-storage-s3');
 
+var connection = mysql.createConnection({
 
+});
 
 router.get('/', function(req, res) {
     res.render('group', function(error, content) {
@@ -37,7 +39,7 @@ router.post('/grouplist', function(req, res) {
             res.status(503).json({
                 result: false,
                 reason: "실패"
-            })
+            });
         }
     });
 });
