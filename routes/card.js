@@ -172,7 +172,7 @@ router.post('/upload', upload.single('userPhoto'), function(req, res, next) {
                                     reason: "사진 업로드 실패"
                               });
                           } else {
-                              res.json({
+                              res.status(200).json({
                                     result: true,
                                     reason: "캡쳐 성공"
                               });
