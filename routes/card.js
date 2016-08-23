@@ -154,7 +154,7 @@ router.post('/upload', upload.single('userPhoto'), function(req, res, next) {
           file_name = req.file.filename,
           photo_url = req.file.s3.Location,
           internet_url = req.body.internet_url,
-          //token = req.body.user_id, 웹에서 사용하려면 이거 써야함
+          //token = req.body.token, 웹에서 사용하려면 이거 써야함
           token = req.headers.token,
           group_def = '미분류';
 
